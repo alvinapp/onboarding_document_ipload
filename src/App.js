@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
 import Select from 'react-select';
+import { RiLoader2Fill } from "react-icons/ri";
+import { HiUpload } from "react-icons/hi";
 
 // Styled components
 const Card = styled.div`
@@ -19,9 +21,6 @@ const Card = styled.div`
   width: 100%;
   padding: 3rem 5rem 2rem;
   border-radius: 20px;
-  &:hover {
-    box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.35);
-  }
 `;
 
 const Description = styled.div`
@@ -41,11 +40,15 @@ const Description = styled.div`
 const Button = styled.button`
   padding: 12px 20px;
   border: none;
+  width: 100%;
   background-color: #6a5acd;
   color: white;
   border-radius: 12px;
-  margin: 10px;
   cursor: pointer;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
   &:hover {
     background-color: #483d8b;
   }
@@ -60,83 +63,126 @@ const Label = styled.label`
   font-weight: bold;
 `;
 
-const Modal = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
+const UploadArea = styled.div`
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  text-align: center;
+  cursor: pointer;
+  &:hover {
+    border-color: #0639ec;
+  }
 `;
 
-const ModalContent = styled.div`
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  width: 90%;
-  max-width: 500px;
-  text-align: center;
+const FileInfo = styled.div`
+  margin-top: 10px;
+  font-size: 16px;
+  color: #333;
 `;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 20px;
+`;
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const StyledLoader = styled(RiLoader2Fill)`
+  color: white;
+  animation: ${spin} 2s linear infinite;
+`;
+
+const LoadingIcon = () => (
+  <StyledLoader size="24px" />
+);
 
 function App() {
   const [organizations, setOrganizations] = useState([]);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [onboardingStates, setOnboardingStates] = useState([]);
   const [selectedOnboardingState, setSelectedOnboardingState] = useState(null);
-  const [documentLink, setDocumentLink] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [file, setFile] = useState(null);
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+      setFile(event.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    setIsLoading(true);
+    if (!file || !selectedOrg || !selectedOnboardingState) {
+      alert("Please select all required fields and a file.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('data', JSON.stringify({
+      step_number: selectedOnboardingState.stepNumber,
+      link_type: 'pdf'  // Example data, adjust as necessary
+    }));
+
+    try {
+      const response = await axios.post(`http://localhost:5000/onboarding_steps/document/${selectedOrg.value}/upload_document`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log('Upload successful:', response.data);
+      setSelectedOnboardingState(null);
+      setSelectedOrg(null);
+      setFile(null);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     axios.get('http://localhost:5000/organizations/all')
       .then(response => {
-        setOrganizations(response.data.map(org => ({ value: org.id, label: org.name })));
+        setOrganizations(response.data.map(org => ({ value: org.id, label: org.name })).sort((a, b) => a.label.localeCompare(b.label)));
       })
       .catch(error => console.error('Error fetching organizations:', error));
   }, []);
 
   useEffect(() => {
     if (selectedOrg) {
-      setLoading(true);
       axios.get(`http://localhost:5000/onboarding_steps/organization/${selectedOrg.value}/steps`)
         .then(response => {
           setOnboardingStates(response.data.map(state => ({ value: state.id, label: state.step_name, stepNumber: state.step_number })));
         })
-        .catch(error => console.error('Error fetching organization steps:', error))
-        .finally(() => setLoading(false));
+        .catch(error => console.error('Error fetching organization steps:', error));
     } else {
       setOnboardingStates([]);
       setSelectedOnboardingState(null);
     }
   }, [selectedOrg]);
 
-  const handleSubmit = () => {
-    setLoading(true);
-    axios.post(`http://localhost:5000/onboarding_steps/document/${selectedOrg.value}/add_document`, {
-      organization_id: selectedOrg.value,
-      onboarding_step_id: selectedOnboardingState.value,
-      document_link: documentLink,
-      link_type: 'pdf',
-      step_number: selectedOnboardingState.stepNumber
-    })
-      .then(response => console.log('Document added:', response.data))
-      .catch(error => console.error('Error adding document:', error))
-      .finally(() => {
-        setLoading(false);
-        setShowModal(false);
-      });
-  }
-
   return (
     <Card>
-      <Description>
-      Onboarding Document Submission
-    </Description>
+      <Description>Onboarding Document Submission</Description>
       <Label htmlFor="organizationName">Organization Name</Label>
       <Select
         id="organizationName"
@@ -154,39 +200,26 @@ function App() {
         options={onboardingStates}
         onChange={setSelectedOnboardingState}
         value={selectedOnboardingState}
-        isDisabled={!selectedOrg || loading}
+        isDisabled={!selectedOrg}
         isClearable
         isSearchable
         placeholder="Select onboarding state"
       />
 
-      <Label htmlFor="documentLink">Document Link</Label>
-      <input
-        id="documentLink"
-        type="text"
-        placeholder="Enter document link"
-        value={documentLink}
-        onChange={e => setDocumentLink(e.target.value)}
-        style={{ padding: '12px', borderRadius: '8px', border: '1px solid #ccc', width: '95%' }}
-      />
-
-      <Button
-        onClick={() => setShowModal(true)}
-        disabled={!selectedOrg || !selectedOnboardingState || !documentLink || loading}
-      >
-        {loading ? 'Submitting...' : 'Submit'}
-      </Button>
-
-      {showModal && (
-        <Modal>
-          <ModalContent>
-            <h4>Confirm Submission</h4>
-            <p>Are you sure you want to submit these details?</p>
-            <Button onClick={handleSubmit}>Yes, Submit</Button>
-            <Button onClick={() => setShowModal(false)}>Cancel</Button>
-          </ModalContent>
-        </Modal>
+      <UploadArea onDragOver={handleDragOver} onDrop={handleDrop} onClick={() => document.getElementById('fileInput').click()}>
+        Drag and drop or <span style={{ color: '#0639ec', textDecoration: 'underline' }}>browse</span> files
+      </UploadArea>
+      <input id="fileInput" type="file" onChange={handleFileChange} style={{ display: 'none' }} />
+      {file && (
+        <FileInfo>
+          {file.name} - {(file.size / 1024 / 1024).toFixed(2)} MB
+        </FileInfo>
       )}
+      <ButtonContainer>
+        <Button onClick={handleUpload} disabled={!file || !selectedOrg || !selectedOnboardingState}>
+          {isLoading ? <LoadingIcon /> : <HiUpload size="14" />} Upload File
+        </Button>
+      </ButtonContainer>
     </Card>
   );
 }
