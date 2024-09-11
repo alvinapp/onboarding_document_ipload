@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
 import Select from 'react-select';
+import logoSvg from './assets/alvinlogo1.svg';
 import { RiLoader2Fill } from "react-icons/ri";
 import { HiUpload } from "react-icons/hi";
 
@@ -12,19 +13,19 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   transition: all 0.3s ease-in-out;
   position: relative;
-  max-width: 30rem;
+  max-width: 20rem;
   margin: 10rem auto;
   background: #fff;
   width: 100%;
-  padding: 3rem 5rem 2rem;
+  padding: 2rem;
   border-radius: 20px;
 `;
 
 const Description = styled.div`
-  font-size: 1.2rem;
+  font-size: 1rem;
   line-height: 1.5;
   color: #101010;
   line-spacing: 1.5;
@@ -35,25 +36,28 @@ const Description = styled.div`
   margin-top: 1rem;
   margin-bottom: 1rem;
   font-weight: 500;
+  decoration: underline;
 `;
 
 const Button = styled.button`
-  padding: 12px 20px;
+  padding: 15px 20px;
   border: none;
   width: 100%;
-  background-color: #6a5acd;
+  background-color: #042EBD;
   color: white;
   border-radius: 12px;
+  box-shadow: 0 2px 4px -1px #9BB0F7, 0 8px 16px -1px #9BB0F7;
   cursor: pointer;
   display: flex;
   gap: 5px;
   align-items: center;
   justify-content: center;
   &:hover {
-    background-color: #483d8b;
+    background-color: #042EBE;
   }
   &:disabled {
     background-color: #ccc;
+    box-shadow: none;
     cursor: not-allowed;
   }
 `;
@@ -66,8 +70,9 @@ const Label = styled.label`
 const UploadArea = styled.div`
   border: 2px dashed #ccc;
   border-radius: 10px;
-  padding: 20px;
+  padding: 1rem;
   margin-top: 20px;
+  margin-bottom: 20px;
   text-align: center;
   cursor: pointer;
   &:hover {
@@ -75,10 +80,17 @@ const UploadArea = styled.div`
   }
 `;
 
+const LogoContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+`;
+
 const FileInfo = styled.div`
   margin-top: 10px;
   font-size: 16px;
-  color: #333;
+  color: #101010;
 `;
 
 const ButtonContainer = styled.div`
@@ -114,6 +126,12 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState(null);
 
+  // const baseUrl = 'http://localhost:5000';
+  const baseUrl = 'https://ent.app.alvinapp.com/';
+  const uploadUrl = `${baseUrl}/onboarding_steps/document/${selectedOrg?.value}/upload_document`;
+  const fetchOrgsUrl = `${baseUrl}/organizations/all`;
+  const fetchStepsUrl = `${baseUrl}/onboarding_steps/organization/${selectedOrg?.value}/steps`;
+
   const handleDragOver = (event) => {
     event.preventDefault();
   };
@@ -143,7 +161,7 @@ function App() {
     }));
 
     try {
-      const response = await axios.post(`http://localhost:5000/onboarding_steps/document/${selectedOrg.value}/upload_document`, formData, {
+      const response = await axios.post(uploadUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -160,7 +178,7 @@ function App() {
   };
 
   useEffect(() => {
-    axios.get('http://localhost:5000/organizations/all')
+    axios.get(fetchOrgsUrl)
       .then(response => {
         setOrganizations(response.data.map(org => ({ value: org.id, label: org.name })).sort((a, b) => a.label.localeCompare(b.label)));
       })
@@ -169,7 +187,7 @@ function App() {
 
   useEffect(() => {
     if (selectedOrg) {
-      axios.get(`http://localhost:5000/onboarding_steps/organization/${selectedOrg.value}/steps`)
+      axios.get(fetchStepsUrl)
         .then(response => {
           setOnboardingStates(response.data.map(state => ({ value: state.id, label: state.step_name, stepNumber: state.step_number })));
         })
@@ -182,8 +200,10 @@ function App() {
 
   return (
     <Card>
-      <Description>Onboarding Document Submission</Description>
-      <Label htmlFor="organizationName">Organization Name</Label>
+      <LogoContainer>
+        <img src={logoSvg} alt="Alvin Logo" />
+      </LogoContainer>
+      {/* <Description>Onboarding Document Submission</Description> */}
       <Select
         id="organizationName"
         options={organizations}
@@ -192,9 +212,9 @@ function App() {
         isClearable
         isSearchable
         placeholder="Select an organization"
+        styles={selectStyles}
       />
 
-      <Label htmlFor="onboardingState">Onboarding State</Label>
       <Select
         id="onboardingState"
         options={onboardingStates}
@@ -204,6 +224,7 @@ function App() {
         isClearable
         isSearchable
         placeholder="Select onboarding state"
+        styles={selectStyles}
       />
 
       <UploadArea onDragOver={handleDragOver} onDrop={handleDrop} onClick={() => document.getElementById('fileInput').click()}>
@@ -225,3 +246,41 @@ function App() {
 }
 
 export default App;
+
+const selectStyles = {
+  control: (styles) => ({
+    ...styles,
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    border: 'none',
+    height: '50px',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+  }),
+  option: (styles, { isFocused }) => ({
+    ...styles,
+    backgroundColor: isFocused ? '#0639ec' : 'white',
+    color: isFocused ? 'white' : '#101010',
+    borderRadius: '8px',
+    cursor: 'pointer'
+  }),
+  menu: (styles) => ({
+    ...styles,
+    borderRadius: '12px',
+    border: '2px solid #ccc',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
+  }),
+  menuList: (styles) => ({
+    ...styles,
+    padding: 2,
+    borderRadius: '12px'
+  }),
+  placeholder: (styles) => ({
+    ...styles,
+    color: '#101010'
+  }),
+  singleValue: (styles) => ({
+    ...styles,
+    color: '#101010'
+  })
+};
+
