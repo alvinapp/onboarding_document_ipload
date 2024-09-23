@@ -24,35 +24,52 @@ const Card = styled.div`
   border-radius: 20px;
 `;
 
+const TableWrapper = styled.div`
+  overflow-x: auto; /* Add horizontal scroll on small screens */
+  margin-top: 1rem;
+`;
+
 const TableCard = styled.div`
-    background: ${({ theme }) => theme.glass};
-    color: ${({ theme }) => theme.text};
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-    transition: all 0.3s ease-in-out;
-    position: relative;
-    max-width: 50rem;
-    margin: 2rem auto;
-    background: #fff;
-    width: 100%;
-    padding: 2rem;
-    border-radius: 20px;
+  background: ${({ theme }) => theme.glass};
+  color: ${({ theme }) => theme.text};
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+  transition: all 0.3s ease-in-out;
+  margin: 2rem auto;
+  background: #fff;
+  width: 100%;
+  padding: 2rem;
+  border-radius: 20px;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    gap: 10px;
+  }
 `;
 
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
   th, td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    white-space: nowrap; /* Prevent text wrapping */
+
+    @media (max-width: 768px) {
+      padding: 8px 10px;
+      font-size: 14px;
+    }
   }
   th {
     background-color: #f4f4f4;
     font-weight: bold;
+
+    @media (max-width: 768px) {
+      font-size: 14px;
+    }
   }
 `;
 
@@ -97,6 +114,10 @@ const Button = styled.button`
     box-shadow: none;
     cursor: not-allowed;
   }
+
+  @media (max-width: 768px) {
+    padding: 10px 15px;
+  }
 `;
 
 const StyledLoader = styled(RiLoader2Fill)`
@@ -113,8 +134,7 @@ function UserActivityTable() {
     const [userActivity, setUserActivity] = useState(null);
 
     // const baseUrl = 'http://localhost:5001';
-    // const baseUrl = 'https://ent.app.alvinapp.com/';
-  const baseUrl = 'https://finance.app.alvinapp.com/';
+    const baseUrl = 'https://finance.app.alvinapp.com/';
     const fetchOrgsUrl = `${baseUrl}/organizations/all`;
     const fetchUserActivityUrl = `${baseUrl}/users/organization_users/logins/${selectedOrg?.value}`;
 
@@ -154,6 +174,7 @@ function UserActivityTable() {
                     id="organizationName"
                     options={organizations}
                     onChange={setSelectedOrg}
+                    onMenuClose={() => setUserActivity(null)}
                     value={selectedOrg}
                     isClearable
                     isSearchable
@@ -169,27 +190,52 @@ function UserActivityTable() {
 
                 {isLoading && <p>Loading...</p>}
             </Card>
+
             {selectedOrg && userActivity && userActivity.users.length > 0 ? (
-                <TableCard><Table>
-                    <thead>
-                        <tr>
-                            <th>Email</th>
-                            <th>Full Name</th>
-                            <th>First Login</th>
-                            <th>Last Login</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {userActivity.users.map((user, index) => (
-                            <tr key={index}>
-                                <td>{user.email}</td>
-                                <td>{user.full_name}</td>
-                                <td>{new Date(user.first_login).toLocaleString()}</td>
-                                <td>{new Date(user.last_login).toLocaleString()}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table></TableCard>
+                <TableCard>
+                    <TableWrapper>
+                        <Table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Email</th>
+                                    <th>Full Name</th>
+                                    <th>First Login</th>
+                                    <th>Last Login</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {userActivity.users.map((user, index) => (
+                                    <tr key={index}>
+                                        <td>{index + 1}</td>
+                                        <td>{user.email}</td>
+                                        <td>{user.full_name}</td>
+                                        <td>
+                                            {new Date(user.first_login).toLocaleDateString('en-US', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </td>
+                                        <td>
+                                            {new Date(user.last_login).toLocaleDateString('en-US', {
+                                                weekday: 'long',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </TableWrapper>
+                </TableCard>
             ) : userActivity && userActivity.users.length === 0 ? (
                 <NoDataGraphic>
                     <p>No user activity found for this organization.</p>
