@@ -39,7 +39,7 @@ const TableCard = styled.div`
   transition: all 0.3s ease-in-out;
   margin: 2rem auto;
   background: #fff;
-  width: 100%;
+  width: 80%;
   padding: 2rem;
   border-radius: 20px;
 
