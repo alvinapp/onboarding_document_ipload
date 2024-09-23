@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
 import Select from 'react-select';
 import logoSvg from '../assets/alvinlogo1.svg';
@@ -120,9 +120,18 @@ const Button = styled.button`
   }
 `;
 
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
 const StyledLoader = styled(RiLoader2Fill)`
   color: white;
-  animation: spin 2s linear infinite;
+  animation: ${spin} 2s linear infinite;
 `;
 
 const LoadingIcon = () => <StyledLoader size="24px" />;
@@ -187,8 +196,6 @@ function UserActivityTable() {
                         {isLoading ? <LoadingIcon /> : <HiSearch size="14" />} Get User Activity
                     </Button>
                 </ButtonContainer>
-
-                {isLoading && <p>Loading...</p>}
             </Card>
 
             {selectedOrg && userActivity && userActivity.users.length > 0 ? (
