@@ -153,9 +153,9 @@ function DocUpload() {
     const [file, setFile] = useState(null);
     const navigate = useNavigate();
 
-      const baseUrl = 'http://localhost:5001';
+    //   const baseUrl = 'http://localhost:5001';
     // const baseUrl = 'https://ent.app.alvinapp.com/';
-    // const baseUrl = 'https://finance.app.alvinapp.com/';
+    const baseUrl = 'https://finance.app.alvinapp.com/';
     const uploadUrl = `${baseUrl}/onboarding_steps/document/${selectedOrg?.value}/upload_document`;
     const fetchOrgsUrl = `${baseUrl}/organizations/all`;
     const fetchStepsUrl = `${baseUrl}/onboarding_steps/organization/${selectedOrg?.value}/steps`;

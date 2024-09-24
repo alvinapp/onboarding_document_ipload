@@ -169,8 +169,8 @@ function UserActivityTable() {
     const [userActivity, setUserActivity] = useState(null);
     const navigate = useNavigate();
 
-    const baseUrl = 'http://localhost:5001';
-    // const baseUrl = 'https://finance.app.alvinapp.com/';
+    // const baseUrl = 'http://localhost:5001';
+    const baseUrl = 'https://finance.app.alvinapp.com/';
     const fetchOrgsUrl = `${baseUrl}/organizations/all`;
     const fetchUserActivityUrl = `${baseUrl}/users/organization_users/logins/${selectedOrg?.value}`;
 
