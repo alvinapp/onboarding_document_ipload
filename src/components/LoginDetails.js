@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Select from 'react-select';
 import logoSvg from '../assets/alvinlogo1.svg';
@@ -90,6 +91,7 @@ const ButtonContainer = styled.div`
   display: flex;
   width: 100%;
   justify-content: center;
+  flex-direction: column;
   gap: 20px;
 `;
 
@@ -120,6 +122,29 @@ const Button = styled.button`
   }
 `;
 
+const BackButton = styled.button`
+    padding: 15px 20px;
+    border: none;
+    width: 100%;
+    background-color: #042EBD;
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px -1px #9BB0F7, 0 8px 16px -1px #9BB0F7;
+    cursor: pointer;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+        background-color: #042EBE;
+    }
+    &:disabled {
+        background-color: #ccc;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+`;
+
 const spin = keyframes`
   from {
     transform: rotate(0deg);
@@ -141,6 +166,7 @@ function UserActivityTable() {
     const [selectedOrg, setSelectedOrg] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [userActivity, setUserActivity] = useState(null);
+    const navigate = useNavigate();
 
     // const baseUrl = 'http://localhost:5001';
     const baseUrl = 'https://finance.app.alvinapp.com/';
@@ -195,6 +221,7 @@ function UserActivityTable() {
                     <Button onClick={handleFetchUserActivity} disabled={!selectedOrg}>
                         {isLoading ? <LoadingIcon /> : <HiSearch size="14" />} Get User Activity
                     </Button>
+                    <BackButton onClick={() => navigate('/')}>Back</BackButton>
                 </ButtonContainer>
             </Card>
 
