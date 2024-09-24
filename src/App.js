@@ -10,7 +10,7 @@ const HomePage = () => {
   return (
     <Card>
     <Container>
-      <h1>Select an Action</h1>
+      <TitleText>Select an Action</TitleText>
       <ButtonContainer>
         <Button onClick={() => navigate('/login-details')}>Login Activity</Button>
         <Button onClick={() => navigate('/doc-upload')}>Doc Upload</Button>
@@ -52,6 +52,20 @@ const Card = styled.div`
   border-radius: 20px;
 `;
 
+const TitleText = styled.h1`
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #101010;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.5;
+  text-align: center;
+  letter-spacing: 1.5;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
 // Styled components
 const Container = styled.div`
   display: flex;
@@ -69,13 +83,17 @@ const ButtonContainer = styled.div`
 
 const Button = styled.button`
   padding: 10px 20px;
-  background-color: #042EBD;
-  color: white;
-  border: none;
+  background-color: white;
+  box-shadow: 0 2px 4px -1px #9BB0F7, 0 8px 16px -1px #9BB0F7;
+  color: #101010;
+  border: 1px solid #042EBD;
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   &:hover {
     background-color: #021F8B;
+    color: white;
+    border: none;
+    box-shadow: none;
   }
 `;
