@@ -106,17 +106,18 @@ const BackButton = styled.button`
     padding: 15px 20px;
     border: none;
     width: 100%;
-    background-color: #042EBD;
-    color: white;
+    background-color: white;
+    color: #042EBD;
     border-radius: 12px;
     box-shadow: 0 2px 4px -1px #9BB0F7, 0 8px 16px -1px #9BB0F7;
+    border: 1px solid #042EBD;
     cursor: pointer;
     display: flex;
     gap: 5px;
     align-items: center;
     justify-content: center;
     &:hover {
-        background-color: #042EBE;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     &:disabled {
         background-color: #ccc;
@@ -152,9 +153,9 @@ function DocUpload() {
     const [file, setFile] = useState(null);
     const navigate = useNavigate();
 
-    //   const baseUrl = 'http://localhost:5001';
+      const baseUrl = 'http://localhost:5001';
     // const baseUrl = 'https://ent.app.alvinapp.com/';
-    const baseUrl = 'https://finance.app.alvinapp.com/';
+    // const baseUrl = 'https://finance.app.alvinapp.com/';
     const uploadUrl = `${baseUrl}/onboarding_steps/document/${selectedOrg?.value}/upload_document`;
     const fetchOrgsUrl = `${baseUrl}/organizations/all`;
     const fetchStepsUrl = `${baseUrl}/onboarding_steps/organization/${selectedOrg?.value}/steps`;
