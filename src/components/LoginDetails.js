@@ -242,8 +242,8 @@ function UserActivityTable() {
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th>Email</th>
                                     <th>Full Name</th>
+                                    <th>Email</th>
                                     <th>First Login</th>
                                     <th>Last Login</th>
                                 </tr>
