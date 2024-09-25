@@ -252,8 +252,8 @@ function UserActivityTable() {
                                 {userActivity.users.sort((a, b) => a.full_name.localeCompare(b.full_name)).map((user, index) => (
                                     <tr key={index}>
                                         <td>{index + 1}</td>
-                                        <td>{user.email}</td>
                                         <td>{user.full_name}</td>
+                                        <td>{user.email}</td>
                                         <td>
                                             {user.first_login ? new Date(user.first_login).toLocaleDateString('en-US', {
                                                 weekday: 'long',
