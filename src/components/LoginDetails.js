@@ -25,6 +25,15 @@ const Card = styled.div`
   border-radius: 20px;
 `;
 
+const MainContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  padding: 2rem 0;
+`;
+
 const TableWrapper = styled.div`
   overflow-x: auto; /* Add horizontal scroll on small screens */
   margin-top: 1rem;
@@ -200,11 +209,11 @@ function UserActivityTable() {
     };
 
     return (
-        <>
+        <MainContainer>
+            <LogoContainer>
+                <img src={logoSvg} alt="Alvin Logo" />
+            </LogoContainer>
             <Card>
-                <LogoContainer>
-                    <img src={logoSvg} alt="Alvin Logo" />
-                </LogoContainer>
 
                 <Select
                     id="organizationName"
@@ -240,30 +249,30 @@ function UserActivityTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {userActivity.users.map((user, index) => (
+                                {userActivity.users.sort((a, b) => a.full_name.localeCompare(b.full_name)).map((user, index) => (
                                     <tr key={index}>
                                         <td>{index + 1}</td>
                                         <td>{user.email}</td>
                                         <td>{user.full_name}</td>
                                         <td>
-                                            {new Date(user.first_login).toLocaleDateString('en-US', {
+                                            {user.first_login ? new Date(user.first_login).toLocaleDateString('en-US', {
                                                 weekday: 'long',
                                                 year: 'numeric',
                                                 month: 'long',
                                                 day: 'numeric',
                                                 hour: '2-digit',
                                                 minute: '2-digit'
-                                            })}
+                                            }) : 'User hasn\'t logged in yet'}
                                         </td>
                                         <td>
-                                            {new Date(user.last_login).toLocaleDateString('en-US', {
+                                            {user.last_login ? new Date(user.last_login).toLocaleDateString('en-US', {
                                                 weekday: 'long',
                                                 year: 'numeric',
                                                 month: 'long',
                                                 day: 'numeric',
                                                 hour: '2-digit',
                                                 minute: '2-digit'
-                                            })}
+                                            }) : 'User hasn\'t logged in yet'}
                                         </td>
                                     </tr>
                                 ))}
@@ -276,7 +285,7 @@ function UserActivityTable() {
                     <p>No user activity found for this organization.</p>
                 </NoDataGraphic>
             ) : null}
-        </>
+        </MainContainer>
     );
 }
 
