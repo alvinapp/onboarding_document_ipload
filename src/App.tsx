@@ -1,39 +1,46 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
-import DocUpload from "./components/DocUpload";
+import DocUpload from "./pages/DocUpload";
 import logoSvg from './assets/alvinlogo1.svg';
-import LoginDetails from "./components/LoginDetails";
+import LoginDetails from "./pages/LoginDetails";
+import ResetPassword from "./pages/ResetPassword";
+import OrganizationTable from "./pages/OrganizationsTable";
 import styled from 'styled-components';
 
-const HomePage = () => {
+// HomePage Component
+const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
     <MainContainer>
-    <LogoContainer>
-          <img src={logoSvg} alt="Alvin Logo" />
-    </LogoContainer>
-    <Card>
-      <Container>
-        
-        <TitleText>Select an Action</TitleText>
-        <ButtonContainer>
-          <Button onClick={() => navigate('/login-details')}>Login Activity</Button>
-          <Button onClick={() => navigate('/doc-upload')}>Doc Upload</Button>
-        </ButtonContainer>
-      </Container>
-    </Card>
+      <LogoContainer>
+        <img src={logoSvg} alt="Alvin Logo" />
+      </LogoContainer>
+      <Card>
+        <Container>
+          <TitleText>Select an Action</TitleText>
+          <ButtonContainer>
+            <Button onClick={() => navigate('/login-details')}>Login Activity</Button>
+            <Button onClick={() => navigate('/doc-upload')}>Doc Upload</Button>
+            <Button onClick={() => navigate('/reset-password')}>Edit User</Button>
+            <Button onClick={() => navigate('/organizations')}>Organizations</Button>
+          </ButtonContainer>
+        </Container>
+      </Card>
     </MainContainer>
   );
 };
 
-function App() {
+// Main App Component
+const App: React.FC = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login-details" element={<LoginDetails />} />
         <Route path="/doc-upload" element={<DocUpload />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/organizations" element={<OrganizationTable />} />
       </Routes>
     </Router>
   );
@@ -41,6 +48,7 @@ function App() {
 
 export default App;
 
+// Styled components
 const Card = styled.div`
   background: ${({ theme }) => theme.glass};
   color: ${({ theme }) => theme.text};
@@ -65,7 +73,7 @@ const MainContainer = styled.div`
   justify-content: center;
   align-items: center;
   margin: auto;
-  padding: 2rem;
+  padding: 2rem 0;
 `;
 
 const TitleText = styled.h1`
@@ -87,7 +95,6 @@ const LogoContainer = styled.div`
   text-align: center;
 `;
 
-// Styled components
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -99,11 +106,14 @@ const Container = styled.div`
 
 const ButtonContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center; 
   gap: 20px;
 `;
 
 const Button = styled.button`
   padding: 10px 20px;
+  width: 150px;
   background-color: white;
   box-shadow: 0 2px 4px -1px #9BB0F7, 0 8px 16px -1px #9BB0F7;
   color: #101010;
