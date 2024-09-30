@@ -56,6 +56,15 @@ export default function CustomTable() {
           <h2 className="text-2xl font-bold text-gray-800">Projects Table</h2>
           <p className="text-sm text-gray-500">30 done this month</p>
         </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex items-center gap-2">
+            <div className="h-4 w-4">
+              <Filter />
+            </div>
+            FILTER
+          </Button>
+          <Button variant="default" className="bg-gray-900 text-white">NEW PROJECT</Button>
+        </div>
       </div>
       <Table>
         <TableHeader>
