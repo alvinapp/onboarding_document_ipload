@@ -187,8 +187,8 @@ const UserActivityTable: React.FC = () => {
               </Card>
             ) : (
               <Card>
-                <CardContent className="text-center py-8">
-                  <p className="text-lg text-gray-600">No user activity found for this organization.</p>
+                <CardContent className="flex flex-col text-center py-8">
+                  <div className="text-lg text-gray-600">No user activity found for this organization.</div>
                 </CardContent>
               </Card>
             )}

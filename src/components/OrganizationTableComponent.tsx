@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from './Table';
-import { MoreHorizontal, Filter, ArrowLeft } from 'lucide-react';
+import { MoreHorizontal, Filter, ArrowLeft, ChevronLeft } from 'lucide-react';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import CustomLoader from './CustomLoader';
@@ -62,13 +62,11 @@ export default function CustomTable() {
       <CustomLoader isLoading={isFetching} />
       <div className="flex justify-between items-center mb-6">
         <div>
-          <Button
-            onClick={() => navigate('/')}
-            variant="outline"
-            className="w-full"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back
-          </Button>
+        <div className='flex items-center shadow p-2 rounded-md bg-white w-8 cursor-pointer hover:bg-accent mb-1' onClick={
+            () => navigate("/")
+          }>
+              <ChevronLeft className="h-4 w-4" />
+          </div>
           <p className="text-sm text-gray-500">
             {data.total} organizations
           </p>
@@ -99,7 +97,7 @@ export default function CustomTable() {
           {organizationData
             .sort((a: any, b: any) => a.organization.localeCompare(b.organization))
             .map((org: any, index: any) => (
-              <TableRow key={index} className='cursor-pointer'>
+              <TableRow key={index} className='cursor-pointer' onClick={()=>{navigate('/organization-dashboard')}}>
                 <TableCell className="font-medium">
                   {org.organization}
                 </TableCell>

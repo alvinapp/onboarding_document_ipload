@@ -202,12 +202,16 @@ const ResetPassword: React.FC = () => {
                       <SelectItem value="loading" disabled>
                         Loading users...
                       </SelectItem>
-                    ) : (
+                    ) : organizationUsers.length > 0 ? (
                       organizationUsers.map((user) => (
                         <SelectItem key={user.value} value={user.value}>
                           {user.label}
                         </SelectItem>
                       ))
+                    ) : (
+                      <SelectItem value="no-users" disabled>
+                        No users found
+                      </SelectItem>
                     )}
                   </SelectContent>
                 </Select>
