@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import CustomTable from '../components/CustomTable';
+import OrganizationTableComponent from '../components/OrganizationTableComponent';
 import { Card } from "../components/Card"
 import { useNavigate } from "react-router-dom";
 import logoSvg from "../assets/alvinlogo1.svg";
@@ -28,7 +28,7 @@ const OrganizationTable: React.FC = () => {
         >
           <Card>
             <TableContainer>
-              <CustomTable />
+              <OrganizationTableComponent />
             </TableContainer>
           </Card>
         </motion.div>

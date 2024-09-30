@@ -6,9 +6,12 @@ import LoginDetails from "./pages/LoginDetails"
 import ResetPassword from "./pages/ResetPassword"
 import OrganizationTable from "./pages/OrganizationsTable"
 import { ToastProvider } from "./components/Toast"
+import { QueryClient, QueryClientProvider } from "react-query"
 
 const App: React.FC = () => {
+  const queryClient = new QueryClient()
   return (
+    <QueryClientProvider client={queryClient}>
     <ToastProvider>
       <Router>
         <Routes>
@@ -20,6 +23,7 @@ const App: React.FC = () => {
         </Routes>
       </Router>
     </ToastProvider>
+    </QueryClientProvider>
   )
 }
 
