@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from './Avatar';
 import { Button } from './Button';
 import { Progress } from './Progress';
@@ -10,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from './Table';
-import { MoreHorizontal, Filter } from 'lucide-react';
+import { MoreHorizontal, Filter, ArrowLeft } from 'lucide-react';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import CustomLoader from './CustomLoader';
@@ -18,6 +19,7 @@ import CustomLoader from './CustomLoader';
 export default function CustomTable() {
   const [page, setPage] = useState(1);
   const perPage = 10;
+  const navigate = useNavigate();
 
   const baseUrl = 'http://localhost:5001';
 
@@ -44,12 +46,12 @@ export default function CustomTable() {
     progress: step.latest_step_progress,
     dueDate: step.due_date
       ? new Date(step.due_date).toLocaleDateString(
-          'en-US',
-          {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          }
+        'en-US',
+        {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        }
       )
       : 'N/A',
   }));
@@ -59,9 +61,13 @@ export default function CustomTable() {
       <CustomLoader isLoading={isFetching} />
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">
-            Organization Table
-          </h2>
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            className="w-full"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+          </Button>
           <p className="text-sm text-gray-500">
             {data.total} organizations
           </p>
