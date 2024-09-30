@@ -15,6 +15,7 @@ import { MoreHorizontal, Filter, ArrowLeft } from 'lucide-react';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import CustomLoader from './CustomLoader';
+import CreateOrganizationDialog from './CreateOrganization';
 
 export default function CustomTable() {
   const [page, setPage] = useState(1);
@@ -77,9 +78,10 @@ export default function CustomTable() {
             <Filter className="h-4 w-4" />
             FILTER
           </Button>
-          <Button variant="default" className="bg-gray-900 text-white">
+          {/* <Button variant="default" className="bg-gray-900 text-white">
             NEW ORGANIZATION
-          </Button>
+          </Button> */}
+          <CreateOrganizationDialog/>
         </div>
       </div>
       <Table>
@@ -97,7 +99,7 @@ export default function CustomTable() {
           {organizationData
             .sort((a: any, b: any) => a.organization.localeCompare(b.organization))
             .map((org: any, index: any) => (
-              <TableRow key={index}>
+              <TableRow key={index} className='cursor-pointer'>
                 <TableCell className="font-medium">
                   {org.organization}
                 </TableCell>
