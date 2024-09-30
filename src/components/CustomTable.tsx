@@ -73,40 +73,42 @@ export default function CustomTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {organizationData.map((organization, index) => (
-            <TableRow key={index}>
-              <TableCell className="font-medium">{organization.organization}</TableCell>
-              <TableCell>
-                <div className="flex -space-x-2">
-                  {organization.assignee.map((person, personIndex) => (
-                    <Avatar key={personIndex} className="border-2 border-white">
-                      <AvatarImage src={`https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 100)}.jpg`} />
-                      <AvatarFallback>{person.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                  ))}
-                </div>
-              </TableCell>
-              <TableCell>
-                <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium">
-                  {organization.team}
-                </span>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col items-start gap-1">
-                  <span className="text-xs font-medium">{organization.progress}%</span>
-                  <Progress value={organization.progress} className="w-[80px] h-[10px] bg-[#f7f7f7]" />
-                </div>
-              </TableCell>
-              <TableCell>{organization.dueDate}</TableCell>
-              <TableCell>
-                <Button variant="ghost" size="icon">
-                  <div className="h-4 w-4">
-                    <MoreHorizontal />
+          {organizationData
+            .sort((a, b) => a.organization.localeCompare(b.organization)) // {{ edit_1 }}
+            .map((organization, index) => (
+              <TableRow key={index}>
+                <TableCell className="font-medium">{organization.organization}</TableCell>
+                <TableCell>
+                  <div className="flex -space-x-2">
+                    {organization.assignee.map((person, personIndex) => (
+                      <Avatar key={personIndex} className="border-2 border-white">
+                        <AvatarImage src={`https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 100)}.jpg`} />
+                        <AvatarFallback>{person.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                    ))}
                   </div>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell>
+                  <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium">
+                    {organization.team}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="text-xs font-medium">{organization.progress}%</span>
+                    <Progress value={organization.progress} className="w-[80px] h-[10px] bg-[#f7f7f7]" />
+                  </div>
+                </TableCell>
+                <TableCell>{organization.dueDate}</TableCell>
+                <TableCell>
+                  <Button variant="ghost" size="icon">
+                    <div className="h-4 w-4">
+                      <MoreHorizontal />
+                    </div>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
       <div className="flex justify-between items-center mt-4">

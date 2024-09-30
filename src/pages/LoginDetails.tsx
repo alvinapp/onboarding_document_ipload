@@ -1,360 +1,198 @@
-import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Select, { SingleValue } from 'react-select';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { Card, CardContent, CardHeader, CardTitle } from "../components/Card"
+import { Button } from "../components/Button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/Select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/Table"
+import { Loader2, Search, ArrowLeft } from "lucide-react"
+import { useToast } from "../hooks/use-toast"
 import logoSvg from '../assets/alvinlogo1.svg';
-import { RiLoader2Fill } from "react-icons/ri";
-import { HiSearch } from "react-icons/hi";
+import { motion, AnimatePresence } from "framer-motion"
 
-// TypeScript interfaces
+const baseUrl = 'http://localhost:5001'
+
 interface Organization {
-  value: string;
-  label: string;
+  value: string
+  label: string
 }
 
 interface UserActivity {
-  users: User[];
+  users: User[]
 }
 
 interface User {
-  full_name: string;
-  email: string;
-  first_login: string | null;
-  last_login: string | null;
+  full_name: string
+  email: string
+  first_login: string | null
+  last_login: string | null
 }
 
-// Styled components for table and message
-const Card = styled.div`
-  background: ${({ theme }) => theme.glass};
-  color: ${({ theme }) => theme.text};
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-  transition: all 0.3s ease-in-out;
-  position: relative;
-  max-width: 25rem;
-  margin: 2rem auto;
-  background: #fff;
-  width: 100%;
-  padding: 2rem;
-  border-radius: 20px;
-`;
-
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin: auto;
-  padding: 2rem 0;
-`;
-
-const TableWrapper = styled.div`
-  overflow-x: auto;
-  margin-top: 1rem;
-`;
-
-const TableCard = styled.div`
-  background: ${({ theme }) => theme.glass};
-  color: ${({ theme }) => theme.text};
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-  transition: all 0.3s ease-in-out;
-  margin: 2rem auto;
-  background: #fff;
-  width: 80%;
-  padding: 2rem;
-  border-radius: 20px;
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-    gap: 10px;
-  }
-`;
-
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    white-space: nowrap;
-
-    @media (max-width: 768px) {
-      padding: 8px 10px;
-      font-size: 14px;
-    }
-  }
-  th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-
-    @media (max-width: 768px) {
-      font-size: 14px;
-    }
-  }
-`;
-
-const NoDataGraphic = styled.div`
-  text-align: center;
-  font-size: 1.2rem;
-  color: #666;
-  margin-top: 2rem;
-`;
-
-const LogoContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  flex-direction: column;
-  gap: 20px;
-`;
-
-const Button = styled.button`
-  padding: 15px 20px;
-  border: none;
-  width: 100%;
-  background-color: #042EBD;
-  color: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px -1px #9BB0F7, 0 8px 16px -1px #9BB0F7;
-  cursor: pointer;
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  justify-content: center;
-  &:hover {
-    background-color: #042EBE;
-  }
-  &:disabled {
-    background-color: #ccc;
-    box-shadow: none;
-    cursor: not-allowed;
-  }
-
-  @media (max-width: 768px) {
-    padding: 10px 15px;
-  }
-`;
-
-const BackButton = styled.button`
-    padding: 15px 20px;
-    border: none;
-    width: 100%;
-    background-color: white;
-    color: #042EBD;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px -1px #9BB0F7, 0 8px 16px -1px #9BB0F7;
-    border: 1px solid #042EBD;
-    cursor: pointer;
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    justify-content: center;
-    &:hover {
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    &:disabled {
-        background-color: #ccc;
-        box-shadow: none;
-        cursor: not-allowed;
-    }
-`;
-
-const TitleText = styled.h1`
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: #101010;
-  font-family: 'Poppins', sans-serif;
-  line-height: 1.5;
-  text-align: center;
-  letter-spacing: 1.5;
-  border-bottom: 1px solid #ddd;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-`;
-
-const spin = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`;
-
-const StyledLoader = styled(RiLoader2Fill)`
-  color: white;
-  animation: ${spin} 2s linear infinite;
-`;
-
-const LoadingIcon = () => <StyledLoader size="24px" />;
-
 const UserActivityTable: React.FC = () => {
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<SingleValue<Organization>>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [userActivity, setUserActivity] = useState<UserActivity | null>(null);
-  const navigate = useNavigate();
+  const [organizations, setOrganizations] = useState<Organization[]>([])
+  const [selectedOrg, setSelectedOrg] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [userActivity, setUserActivity] = useState<UserActivity | null>(null)
+  const navigate = useNavigate()
+  const { addToast } = useToast()
 
-  const baseUrl = 'http://localhost:5001';
-  const fetchOrgsUrl = `${baseUrl}/organizations/all`;
-  const fetchUserActivityUrl = `${baseUrl}/users/organization_users/logins/${selectedOrg?.value}`;
-
-  // Fetch organizations
   useEffect(() => {
-    axios.get(fetchOrgsUrl)
+    axios.get(`${baseUrl}/organizations/all`)
       .then(response => {
         setOrganizations(response.data.map((org: any) => ({
           value: org.id,
           label: org.name
-        })).sort((a: Organization, b: Organization) => a.label.localeCompare(b.label)));
+        })).sort((a: Organization, b: Organization) => a.label.localeCompare(b.label)))
       })
-      .catch(error => console.error('Error fetching organizations:', error));
-  }, []);
+      .catch(error => {
+        console.error('Error fetching organizations:', error)
+        addToast({
+          title: "Error",
+          description: "Failed to fetch organizations. Please try again.",
+        })
+      })
+  }, [])
 
-  // Fetch user activity when an organization is selected
   const handleFetchUserActivity = () => {
     if (selectedOrg) {
-      setIsLoading(true);
-      axios.get(fetchUserActivityUrl)
+      setIsLoading(true)
+      axios.get(`${baseUrl}/users/organization_users/logins/${selectedOrg}`)
         .then(response => {
-          setUserActivity(response.data);
-          setIsLoading(false);
+          setUserActivity(response.data)
+          setIsLoading(false)
         })
         .catch(error => {
-          console.error('Error fetching user activity:', error);
-          setIsLoading(false);
-        });
+          console.error('Error fetching user activity:', error)
+          addToast({
+            title: "Error",
+            description: "Failed to fetch user activity. Please try again.",
+          })
+          setIsLoading(false)
+        })
     }
-  };
+  }
 
   return (
-    <MainContainer>
-      <LogoContainer>
-        <img src={logoSvg} alt="Alvin Logo" />
-      </LogoContainer>
-      <Card>
-        <TitleText>Users Login Activity</TitleText>
-        <Select
-          id="organizationName"
-          options={organizations}
-          onChange={setSelectedOrg}
-          onMenuClose={() => setUserActivity(null)}
-          value={selectedOrg}
-          isClearable
-          isSearchable
-          placeholder="Select an organization"
-          styles={selectStyles}
-        />
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-center mb-8">
+        <img src={logoSvg} alt="Alvin Logo" className="h-12" />
+      </div>
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="max-w-md mx-auto mb-8">
+            <CardHeader>
+              <CardTitle className="text-2xl font-semibold text-center">Users Login Activity</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Select value={selectedOrg} onValueChange={setSelectedOrg}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {organizations.map((org) => (
+                    <SelectItem key={org.value} value={org.value}>
+                      {org.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-        <ButtonContainer>
-          <Button onClick={handleFetchUserActivity} disabled={!selectedOrg}>
-            {isLoading ? <LoadingIcon /> : <HiSearch size="14" />} Get User Activity
-          </Button>
-          <BackButton onClick={() => navigate('/')}>Back</BackButton>
-        </ButtonContainer>
-      </Card>
+              <Button
+                onClick={handleFetchUserActivity}
+                disabled={!selectedOrg || isLoading}
+                className="w-full"
+              >
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
+                Get User Activity
+              </Button>
+              <Button
+                onClick={() => navigate('/')}
+                variant="outline"
+                className="w-full"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </AnimatePresence>
 
-      {selectedOrg && userActivity && userActivity.users.length > 0 ? (
-        <TableCard>
-          <TableWrapper>
-            <Table>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Full Name</th>
-                  <th>Email</th>
-                  <th>First Login</th>
-                  <th>Last Login</th>
-                </tr>
-              </thead>
-              <tbody>
-                {userActivity.users.sort((a, b) => a.full_name.localeCompare(b.full_name)).map((user, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{user.full_name}</td>
-                    <td>{user.email}</td>
-                    <td>
-                      {user.first_login ? new Date(user.first_login).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      }) : 'User hasn\'t logged in yet'}
-                    </td>
-                    <td>
-                      {user.last_login ? new Date(user.last_login).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      }) : 'User hasn\'t logged in yet'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </TableWrapper>
-        </TableCard>
-      ) : userActivity && userActivity.users.length === 0 ? (
-        <NoDataGraphic>
-          <p>No user activity found for this organization.</p>
-        </NoDataGraphic>
-      ) : null}
-    </MainContainer>
-  );
-};
+      <AnimatePresence>
+        {selectedOrg && userActivity && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            {userActivity.users.length > 0 ? (
+              <Card>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[50px]">#</TableHead>
+                        <TableHead>Full Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>First Login</TableHead>
+                        <TableHead>Last Login</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {userActivity.users
+                        .sort((a, b) => a.full_name.localeCompare(b.full_name))
+                        .map((user, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell>{user.full_name}</TableCell>
+                            <TableCell>{user.email}</TableCell>
+                            <TableCell>
+                              {user.first_login
+                                ? new Date(user.first_login).toLocaleDateString('en-US', {
+                                  weekday: 'long',
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })
+                                : 'User hasn\'t logged in yet'}
+                            </TableCell>
+                            <TableCell>
+                              {user.last_login
+                                ? new Date(user.last_login).toLocaleDateString('en-US', {
+                                  weekday: 'long',
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })
+                                : 'User hasn\'t logged in yet'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <p className="text-lg text-gray-600">No user activity found for this organization.</p>
+                </CardContent>
+              </Card>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
 
-export default UserActivityTable;
-
-const selectStyles = {
-  control: (styles: any) => ({
-    ...styles,
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    border: 'none',
-    height: '50px',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-  }),
-  option: (styles: any, { isFocused }: { isFocused: boolean }) => ({
-    ...styles,
-    backgroundColor: isFocused ? '#0639ec' : 'white',
-    color: isFocused ? 'white' : '#101010',
-    borderRadius: '8px',
-    cursor: 'pointer'
-  }),
-  menu: (styles: any) => ({
-    ...styles,
-    borderRadius: '12px',
-    border: '2px solid #ccc',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
-  }),
-  menuList: (styles: any) => ({
-    ...styles,
-    padding: 2,
-    borderRadius: '12px'
-  }),
-  placeholder: (styles: any) => ({
-    ...styles,
-    color: '#101010'
-  }),
-  singleValue: (styles: any) => ({
-    ...styles,
-    color: '#101010'
-  })
-};
+export default UserActivityTable
