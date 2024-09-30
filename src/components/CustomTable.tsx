@@ -1,9 +1,9 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from './Avatar'
-import { Button } from './Button'; // Import your custom Button component
-import { Progress } from './Progress'; // Import your custom Progress component
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './Table'; // Import your custom Table components
-import { MoreHorizontal, Filter } from 'lucide-react'; // Icon library
+import { Button } from './Button';
+import { Progress } from './Progress';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './Table';
+import { MoreHorizontal, Filter } from 'lucide-react';
 
 const organizationData = [
   {
