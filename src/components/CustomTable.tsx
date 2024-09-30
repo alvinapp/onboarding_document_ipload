@@ -7,42 +7,37 @@ import { MoreHorizontal, Filter } from 'lucide-react';
 
 const organizationData = [
   {
-    project: 'I&M Bank',
+    organization: 'I&M Bank',
     assignee: ['Airi Satou', 'Angelica Ramos', 'Ashton Cox'],
-    budget: '$140,000',
-    team: 'DESIGN',
+    team: 'Account profile creation',
     dueDate: '31 Jan 2024',
-    progress: 50,
+    progress: 10,
   },
   {
-    project: 'United Capital',
+    organization: 'United Capital',
     assignee: ['Brielle Williamson', 'Bruno Nash', 'Caesar Vance'],
-    budget: '$200,000',
-    team: 'BACK-END',
+    team: 'Integration and Deployment',
     dueDate: '15 Feb 2024',
     progress: 100,
   },
   {
-    project: 'Scoping Analysis',
+    organization: 'Nestle',
     assignee: ['Cara Stevens', 'Cedric Kelly'],
-    budget: '$300,000',
-    team: 'DEVELOPMENT',
+    team: 'Scoping and program phasing',
     dueDate: '01 Mar 2024',
     progress: 75,
   },
   {
-    project: 'Platform Errors Fix',
+    organization: 'Family Bank',
     assignee: ['Bradley Greer', 'Brenden Wagner'],
-    budget: '$100,000',
-    team: 'DEVELOPMENT',
+    team: 'Pricing agreement',
     dueDate: '20 Mar 2024',
-    progress: 50,
+    progress: 80,
   },
   {
-    project: 'New Pricing Page',
+    organization: 'ARM',
     assignee: ['Brielle Williamson', 'Bruno Nash'],
-    budget: '$80,000',
-    team: 'MARKETING',
+    team: 'Scoping and program phasing',
     dueDate: '27 Mar 2024',
     progress: 60,
   },
@@ -53,7 +48,7 @@ export default function CustomTable() {
     <div className="w-full p-6 bg-white rounded-lg shadow">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Projects Table</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Organization Table</h2>
           <p className="text-sm text-gray-500">30 done this month</p>
         </div>
         <div className="flex gap-2">
@@ -63,48 +58,46 @@ export default function CustomTable() {
             </div>
             FILTER
           </Button>
-          <Button variant="default" className="bg-gray-900 text-white">NEW PROJECT</Button>
+          <Button variant="default" className="bg-gray-900 text-white">NEW ORGANIZATION</Button>
         </div>
       </div>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[300px]">Project</TableHead>
+            <TableHead className="w-[300px]">Organization</TableHead>
             <TableHead>Assignee</TableHead>
-            <TableHead>Budget</TableHead>
-            <TableHead>Team</TableHead>
+            <TableHead>Launchpad Stage</TableHead>
             <TableHead>Progress</TableHead>
             <TableHead>Due Date</TableHead>
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {organizationData.map((project, index) => (
+          {organizationData.map((organization, index) => (
             <TableRow key={index}>
-              <TableCell className="font-medium">{project.project}</TableCell>
+              <TableCell className="font-medium">{organization.organization}</TableCell>
               <TableCell>
                 <div className="flex -space-x-2">
-                  {project.assignee.map((person, personIndex) => (
+                  {organization.assignee.map((person, personIndex) => (
                     <Avatar key={personIndex} className="border-2 border-white">
-                      <AvatarImage src={`https://randomuser.me/api/portraits/men/${personIndex}.jpg`} />
+                      <AvatarImage src={`https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 100)}.jpg`} />
                       <AvatarFallback>{person.charAt(0)}</AvatarFallback>
                     </Avatar>
                   ))}
                 </div>
               </TableCell>
-              <TableCell>{project.budget}</TableCell>
               <TableCell>
                 <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium">
-                  {project.team}
+                  {organization.team}
                 </span>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <Progress value={project.progress} className="w-[100px] bg-[#f7f7f7]" />
-                  <span className="text-sm font-medium">{project.progress}%</span>
+                <div className="flex flex-col items-start gap-1">
+                  <span className="text-xs font-medium">{organization.progress}%</span>
+                  <Progress value={organization.progress} className="w-[80px] h-[10px] bg-[#f7f7f7]" />
                 </div>
               </TableCell>
-              <TableCell>{project.dueDate}</TableCell>
+              <TableCell>{organization.dueDate}</TableCell>
               <TableCell>
                 <Button variant="ghost" size="icon">
                   <div className="h-4 w-4">
