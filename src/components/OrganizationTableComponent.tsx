@@ -34,6 +34,7 @@ export default function CustomTable() {
         .then((res) => res.data),
     {
       keepPreviousData: true,
+      staleTime: 60*1000*5,
     }
   );
 

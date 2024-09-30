@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Cross2Icon } from '@radix-ui/react-icons';
+import { UsersIcon } from "lucide-react"
 import { countries } from '../data/countries';
 import { useState } from 'react';
 import { Button } from './Button';
@@ -47,6 +48,7 @@ const CreateOrganizationDialog: React.FC = () => {
         <Dialog.Root>
             <Dialog.Trigger asChild>
                 <Button variant="default" className="bg-gray-900 text-white">
+                <UsersIcon className="w-4 h-4 mr-1" />
                     Create Organization
                 </Button>
             </Dialog.Trigger>
