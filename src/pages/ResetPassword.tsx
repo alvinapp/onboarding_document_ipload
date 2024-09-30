@@ -63,7 +63,7 @@ const Card = styled.div<{ shiftLeft?: boolean }>`
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   transition: transform 0.8s ease-in-out;
   animation: ${slideIn} 0.5s ease;
-  width: 20rem;
+  max-width: 25rem;
   padding: 2rem;
   border-radius: 20px;
 
