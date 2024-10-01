@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import OrganizationTableComponent from '../components/OrganizationTableComponent';
+import OrganizationTableComponent from '../components/organizations/OrganizationTableComponent';
 import { Card } from "../components/Card"
 import { useNavigate } from "react-router-dom";
 import logoSvg from "../assets/alvinlogo1.svg";
