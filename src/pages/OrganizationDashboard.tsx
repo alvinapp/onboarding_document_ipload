@@ -121,7 +121,9 @@ export default function OrganizationDashboard() {
           <div className="mt-1 text-sm text-gray-600 flex flex-row justify-between">
             <div>Current next step: {launchpadStage || 'N/A'}.</div>
             <div>Due by: {dueDate || 'N/A'}</div>
-            <Button variant="link" className="ml-2 text-blue-600">
+            <Button variant="link" className="ml-2 text-blue-600" onClick={()=>{
+              navigate('/organization-users/')
+            }}>
               See all users of this organization
             </Button>
           </div>
