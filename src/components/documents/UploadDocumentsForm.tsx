@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import { Button } from "../../components/Button";
-import { Input } from "../../components/Input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/Select";
+import { Button } from "../common/Button";
+import { Input } from "../common/Input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../common/Select";
 import { Loader2, Upload, ArrowLeft } from "lucide-react";
-import { useToast } from "../../components/ToastProvider";
+import { useToast } from "../common/ToastProvider";
 import { motion, AnimatePresence } from "framer-motion";
 
 const baseUrl = 'http://localhost:5001';

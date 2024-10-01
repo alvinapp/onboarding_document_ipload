@@ -1,7 +1,7 @@
 import React from 'react';
-import DialogWrapper from '../DialogWrapper';
+import DialogWrapper from '../common/DialogWrapper';
 import UploadDocumentsForm from './UploadDocumentsForm';
-import { Button } from "../../components/Button";
+import { Button } from "../common/Button";
 import { Upload } from "lucide-react";
 
 interface UploadDocumentDialogProps {

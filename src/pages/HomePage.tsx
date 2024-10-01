@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from "react-router-dom"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/Card"
-import { Button } from "../components/Button"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/common/Card"
+import { Button } from "../components/common/Button"
 import { LogIn, FileUp, UserCog, Building2 } from "lucide-react"
 
 import logoSvg from '../assets/alvinlogo1.svg';

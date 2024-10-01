@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../Table";
-import { Input } from "../Input";
-import { Button } from "../Button";
-import { Avatar, AvatarFallback, AvatarImage } from "../Avatar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../common/Table";
+import { Input } from "../common/Input";
+import { Button } from "../common/Button";
+import { Avatar, AvatarFallback, AvatarImage } from "../common/Avatar";
 import { ChevronLeft, ChevronRight, Search, Pencil } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import logoSvg from '../../assets/alvinlogo1.svg';
-import { Card } from '../Card';
+import { Card } from '../common/Card';
 
 interface Member {
     id: string;

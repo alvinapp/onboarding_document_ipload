@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from '../Avatar';
-import { Button } from '../Button';
-import { Progress } from '../Progress';
+import { Avatar, AvatarFallback, AvatarImage } from '../common/Avatar';
+import { Button } from '../common/Button';
+import { Progress } from '../common/Progress';
 import {
   Table,
   TableBody,
@@ -10,11 +10,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../Table';
+} from '../common/Table';
 import { MoreHorizontal, Filter, ChevronLeft } from 'lucide-react';
 import { useQuery } from 'react-query';
 import axios from 'axios';
-import CustomLoader from '../CustomLoader';
+import CustomLoader from '../common/CustomLoader';
 import CreateOrganizationDialog from './CreateOrganizationDialog';
 import { useOrganizationStore } from '../../store/useOrganizationStore';
 

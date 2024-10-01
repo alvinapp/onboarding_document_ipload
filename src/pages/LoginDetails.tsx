@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useQuery } from 'react-query';
-import { Card, CardContent, CardHeader, CardTitle } from "../components/Card";
-import { Button } from "../components/Button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/Select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/Table";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/common/Card";
+import { Button } from "../components/common/Button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/common/Select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/common/Table";
 import { Loader2, Search, ArrowLeft } from "lucide-react";
-import { useToast } from "../components/ToastProvider";
+import { useToast } from "../components/common/ToastProvider";
 import logoSvg from '../assets/alvinlogo1.svg';
 import { motion, AnimatePresence } from "framer-motion";
 

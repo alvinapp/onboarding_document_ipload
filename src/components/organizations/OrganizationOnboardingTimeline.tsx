@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '../Card';
-import { Button } from '../Button';
+import { Card, CardContent, CardHeader, CardTitle } from '../common/Card';
+import { Button } from '../common/Button';
 import { RefreshCw, UserPlus, PhoneCall, FileText, FileSignature, Cog, CheckSquare, Rocket } from 'lucide-react';
 
 const stages = [

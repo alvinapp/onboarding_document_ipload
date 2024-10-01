@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Button } from '../Button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../Select';
-import { Input } from '../Input';
-import { useToast } from '../ToastProvider';
+import { Button } from '../common/Button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../common/Select';
+import { Input } from '../common/Input';
+import { useToast } from '../common/ToastProvider';
 import { countries } from '../../data/countries';
 
 interface Organization {

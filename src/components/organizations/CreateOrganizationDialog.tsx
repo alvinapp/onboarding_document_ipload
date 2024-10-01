@@ -1,7 +1,7 @@
-import DialogWrapper from '../DialogWrapper';
+import DialogWrapper from '../common/DialogWrapper';
 import CreateOrganizationForm from './CreateOrganizationForm';
 import { UsersIcon } from "lucide-react";
-import { Button } from '../Button';
+import { Button } from '../common/Button';
 
 const CreateOrganizationDialog: React.FC = () => {
     return (

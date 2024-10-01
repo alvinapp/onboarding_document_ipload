@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/Card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/Table';
+import { Button } from '../components/common/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/common/Table';
 import { ArrowLeft, ChevronLeft, LucideTrash2 } from 'lucide-react';
 import Timeline from '../components/organizations/OrganizationOnboardingTimeline';
 import logoSvg from '../assets/alvinlogo1.svg';
@@ -11,10 +11,14 @@ import UploadDocumentDialog from '../components/documents/UploadDocumentDialog';
 import { useOrganizationStore } from '../store/useOrganizationStore';
 import { useQuery } from 'react-query';
 import axios from 'axios';
+import ChangeOrganizationStageForm from '../components/organizations/UpdateOrganizationStepDialog';
+import AlertDialogWrapper from '../components/common/AlertDialogWrapper';
+import { useToast } from '../components/common/ToastProvider';
 
 export default function OrganizationDashboard() {
   const { selectedOrganization, selectOrganization } = useOrganizationStore();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const documentsPerPage = 5;
 
@@ -121,7 +125,7 @@ export default function OrganizationDashboard() {
           <div className="mt-1 text-sm text-gray-600 flex flex-row justify-between">
             <div>Current next step: {launchpadStage || 'N/A'}.</div>
             <div>Due by: {dueDate || 'N/A'}</div>
-            <Button variant="link" className="ml-2 text-blue-600" onClick={()=>{
+            <Button variant="link" className="ml-2 text-blue-600" onClick={() => {
               navigate('/organization-users/')
             }}>
               See all users of this organization
@@ -137,7 +141,9 @@ export default function OrganizationDashboard() {
             <div className="w-full md:w-2/3 space-y-6">
               {/* Change Stage and Upload Document */}
               <div className="flex justify-between">
-                <Button variant="outline">Change stage</Button>
+                {/* <Button variant="outline">Change stage</Button> */}
+                <ChangeOrganizationStageForm currentStage={launchpadStage} users={[{ name: "John Doe", email: "john@example.com" },
+                { name: "Jane Smith", email: "jane@example.com" }]} />
                 {/* UploadDocumentDialog uses the organizationId from Zustand */}
                 <UploadDocumentDialog organizationId={selectedOrganization.organizationId.toString()} />
               </div>
@@ -146,7 +152,7 @@ export default function OrganizationDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle>Documents</CardTitle>
-                  {totalDocuments > 0 &&<p className="text-sm text-gray-500">
+                  {totalDocuments > 0 && <p className="text-sm text-gray-500">
                     {totalDocuments} document{totalDocuments > 1 ? 's' : ''}
                   </p>}
                 </CardHeader>
@@ -179,9 +185,25 @@ export default function OrganizationDashboard() {
                             <TableCell className='py-1'>{doc.documentType}</TableCell>
                             <TableCell className='py-1'>{doc.createdAt}</TableCell>
                             <TableCell className='py-1'>
-                              <Button variant="ghost" size="sm" className="hover:bg-red-200">
-                                <LucideTrash2 className="h-4 w-4" />
-                              </Button>
+                              <AlertDialogWrapper
+                                triggerButton={
+                                  <Button variant="ghost" size="sm" className="hover:bg-red-200">
+                                    <LucideTrash2 className="h-4 w-4" />
+                                  </Button>
+                                }
+                                title='Delete Document'
+                                description='Are you sure you want to delete this document?'
+                                confirmButtonText='Yes, Delete'
+                                onConfirm={() => {
+                                  // Delete document logic here
+                                  console.log(`Deleting document: ${doc.documentName}`);
+                                  showToast({
+                                    title: "Document deleted",
+                                    description: "The document has been deleted successfully.",
+                                    type: "success",
+                                  })
+                                }}
+                              />
                             </TableCell>
                           </motion.tr>
                         ))

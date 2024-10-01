@@ -7,9 +7,9 @@ import ResetPassword from "./pages/ResetPassword";
 import OrganizationTable from "./pages/OrganizationsTable";
 import OrganizationDashboard from "./pages/OrganizationDashboard";
 import OrganizationUsersTable from "./components/organization-users/OrganizationUsersTable";
-import { ToastProvider } from './components/ToastProvider';
+import { ToastProvider } from './components/common/ToastProvider';
 import { QueryClient, QueryClientProvider } from "react-query";
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 const App: React.FC = () => {
   const queryClient = new QueryClient();
