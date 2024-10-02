@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 import { Card, CardContent, CardHeader, CardTitle } from "../components/common/Card";
 import { Button } from "../components/common/Button";
 import { Input } from "../components/common/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/common/Select";
-import { Loader2, Search, ArrowLeft, Check, X } from "lucide-react";
+import { Loader2, Search, ArrowLeft, Check, X, LucideEye, LucideEyeOff } from "lucide-react";
 import { useToast } from "../components/common/ToastProvider";
 import logoSvg from '../assets/alvinlogo1.svg';
 import { motion, AnimatePresence } from "framer-motion";
@@ -58,6 +58,7 @@ const ResetPassword: React.FC = () => {
   const [userDetails, setUserDetails] = useState<UserDetails>({ email: '', first_name: '', last_name: '' });
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState<boolean>(false); // New state for password visibility
   const navigate = useNavigate();
   const { showToast } = useToast();
 
@@ -76,6 +77,87 @@ const ResetPassword: React.FC = () => {
       },
     }
   );
+
+  // use mutation to edit user pssword post user details baseUrl/users//edit_password/<email>/admin
+  const { mutate: editUserPassword, isLoading: editUserPasswordLoading } = useMutation(
+    (password: string) => axios.post(`${baseUrl}/users/edit_password/${userDetails.email}/admin`, { "password": password }),
+    {
+      onError: () => {
+        showToast({
+          title: "Error",
+          description: "Failed to reset password. Please try again.",
+          type: "error",
+          duration: 5000,
+        });
+      },
+      onSuccess: () => {
+        setOriginalUserDetails(null);
+        setUserDetails({ email: '', first_name: '', last_name: '' });
+        setSelectedOrgUser('');
+        setSelectedOrg('');
+        showToast({
+          title: "Success",
+          description: "Password reset successfully.",
+          type: "success",
+          duration: 5000,
+        });
+      },
+    }
+  );
+
+  // use mutation to edit user details post user details baseUrl/users/edit/<email>
+  const { mutate: editUserDetails, isLoading: editUserDetailsLoading } = useMutation(
+    (userDetails: UserDetails) => axios.post(`${baseUrl}/users/edit/${userDetails.email}`, userDetails),
+    {
+      onError: () => {
+        showToast({
+          title: "Error",
+          description: "Failed to edit user details. Please try again.",
+          type: "error",
+          duration: 5000,
+        });
+      },
+      onSuccess: () => {
+        setOriginalUserDetails(null);
+        setUserDetails({ email: '', first_name: '', last_name: '' });
+        setSelectedOrgUser('');
+        setSelectedOrg('');
+        showToast({
+          title: "Success",
+          description: "User details updated successfully.",
+          type: "success",
+          duration: 5000,
+        });
+      },
+    }
+  );
+
+  const onUpdateUserDetails = () => {
+    editUserDetails(userDetails);
+  }
+
+  const onUpdatePassword = () => {
+    // ensure password is valid
+    if (password.length < 8 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[$@$!%*?&]/.test(password)) {
+      showToast({
+        title: "Error",
+        description: "Password must be at least 8 characters and contain at least one lowercase letter, one uppercase letter, one number, and one special character.",
+        type: "error",
+        duration: 5000,
+      });
+      return;
+    }
+    if (password !== confirmPassword) {
+      showToast({
+        title: "Error",
+        description: "Passwords do not match.",
+        type: "error",
+        duration: 5000,
+      });
+      return;
+    }
+    editUserPassword(password);
+  }
 
   // Fetch organization users when an organization is selected
   const { data: rawOrganizationUsers = [], isLoading: usersLoading, isError: usersError } = useQuery(
@@ -258,7 +340,7 @@ const ResetPassword: React.FC = () => {
                     placeholder="Last Name"
                   />
                   <Button
-                    onClick={() => console.log('Edit User Details')}
+                    onClick={onUpdateUserDetails}
                     disabled={!isFormChanged() || !userDetails.email || !userDetails.first_name || !userDetails.last_name}
                     className="w-full"
                   >
@@ -285,20 +367,26 @@ const ResetPassword: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"} // Toggle between text and password
                     placeholder="New Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+                  <Button variant="ghost" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-0">
+                    {showPassword ? <LucideEyeOff className="w-4 h-4" /> : <LucideEye className="w-4 h-4" />}
+                  </Button>
                   {password && <PasswordValidation password={password} />}
                   <Input
-                    type="password"
+                    type={showPassword ? "text" : "password"} // Toggle between text and password
                     placeholder="Confirm Password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
+                  <Button variant="ghost" onClick={() => setShowPassword(!showPassword)} className="absolute right-2 top-0">
+                    {showPassword ? <LucideEyeOff className="w-4 h-4" /> : <LucideEye className="w-4 h-4" />}
+                  </Button>
                   <Button
-                    onClick={() => console.log('Reset Password')}
+                    onClick={onUpdatePassword}
                     disabled={!password || !confirmPassword}
                     className="w-full"
                   >
