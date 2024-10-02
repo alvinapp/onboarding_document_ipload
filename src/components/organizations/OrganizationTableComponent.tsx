@@ -17,6 +17,8 @@ import axios from 'axios';
 import CustomLoader from '../common/CustomLoader';
 import CreateOrganizationDialog from './CreateOrganizationDialog';
 import { useOrganizationStore } from '../../store/useOrganizationStore';
+import { DropdownButton } from '../common/DropDownButton';
+import { FilterDropdown } from './FilterProps';
 
 export default function CustomTable() {
   const [page, setPage] = useState(1);
@@ -107,10 +109,13 @@ export default function CustomTable() {
           <p className="text-sm text-gray-500">{data.total} organizations</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex items-center gap-2">
+          {/* <Button variant="outline" className="flex items-center gap-2">
             <Filter className="h-4 w-4" />
             FILTER
-          </Button>
+          </Button> */}
+          <DropdownButton label="Filter" icon={<Filter className="h-4 w-4" />} children={
+            <FilterDropdown onFilter={()=>{}}/>
+          }/>
           <CreateOrganizationDialog />
         </div>
       </div>

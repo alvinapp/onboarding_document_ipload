@@ -4,49 +4,40 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Input } from "../common/Input";
 import { Button } from "../common/Button";
 import { Avatar, AvatarFallback, AvatarImage } from "../common/Avatar";
-import { ChevronLeft, ChevronRight, Search, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Pencil, LucideTrash2, UserPlus2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useUserStore } from '../../store/useUserStore';
+import { useToast } from '../common/ToastProvider';
 import logoSvg from '../../assets/alvinlogo1.svg';
 import { Card } from '../common/Card';
+import EditUserDialog from './EditUserDialog';
+import AlertDialogWrapper from '../common/AlertDialogWrapper';
 
-interface Member {
-    id: string;
-    name: string;
-    email: string;
-    function: string;
-    subFunction: string;
-    status: 'PENDING INVITATION' | 'ACTIVE';
-    employed: string;
-    avatarUrl: string;
-}
-
-const members: Member[] = [
-    { id: '1', name: 'Emma Roberts', email: 'emma@mail.com', function: 'Manager', subFunction: 'Organization', status: 'ACTIVE', employed: '23/04/24', avatarUrl: '/placeholder.svg?height=40&width=40' },
-    { id: '2', name: 'Marcel Glock', email: 'marcel@mail.com', function: 'Executive', subFunction: 'Projects', status: 'ACTIVE', employed: '23/04/24', avatarUrl: '/placeholder.svg?height=40&width=40' },
-    { id: '3', name: 'Misha Stam', email: 'misha@mail.com', function: 'Social Media', subFunction: 'Projects', status: 'PENDING INVITATION', employed: '23/04/24', avatarUrl: '/placeholder.svg?height=40&width=40' },
-    { id: '4', name: 'Lucian Eurel', email: 'lucian@mail.com', function: 'Programator', subFunction: 'Developer', status: 'PENDING INVITATION', employed: '23/04/24', avatarUrl: '/placeholder.svg?height=40&width=40' },
-    { id: '5', name: 'Linde Michele', email: 'linde@mail.com', function: 'Manager', subFunction: 'Organization', status: 'ACTIVE', employed: '23/04/24', avatarUrl: '/placeholder.svg?height=40&width=40' },
-    { id: '6', name: 'Georg Joshiash', email: 'georg@mail.com', function: 'Designer', subFunction: 'Projects', status: 'ACTIVE', employed: '23/04/24', avatarUrl: '/placeholder.svg?height=40&width=40' },
-];
-
-function parseDate(dateStr: string): Date {
-    const [day, month, year] = dateStr.split('/').map(Number);
-    return new Date(`20${year}-${month}-${day}`); // Assuming the year is in the format 'YY'
+function formatDate(dateString: string | null): string {
+    if (!dateString) return 'Not logged in yet';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 export default function OrganizationUsersTable() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const navigate = useNavigate();
+    const { users } = useUserStore();
+    const { showToast } = useToast();
 
-    const filteredMembers = members.filter(
-        (member) =>
-            member.name.toLowerCase().includes(search.toLowerCase()) ||
-            member.email.toLowerCase().includes(search.toLowerCase()) ||
-            member.function.toLowerCase().includes(search.toLowerCase())
+    console.log(users);
+
+    // Filter users based on the search input
+    const filteredUsers = users.filter(
+        (user) =>
+            user.first_name.toLowerCase().includes(search.toLowerCase()) ||
+            user.last_name.toLowerCase().includes(search.toLowerCase()) ||
+            user.email.toLowerCase().includes(search.toLowerCase()) ||
+            user.role.toLowerCase().includes(search.toLowerCase())
     );
 
-    const totalPages = Math.ceil(filteredMembers.length / 6);
+    const totalPages = Math.ceil(filteredUsers.length / 6);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -62,8 +53,8 @@ export default function OrganizationUsersTable() {
                             </div>
                             <div className="flex justify-between items-center mb-6">
                                 <div>
-                                    <h2 className="text-2xl font-semibold text-gray-900">Members List</h2>
-                                    <p className="text-sm text-gray-500">See information about all members</p>
+                                    <h2 className="text-2xl font-semibold text-gray-900">User List</h2>
+                                    <p className="text-sm text-gray-500">See information about all users</p>
                                 </div>
                                 <div className="flex space-x-4">
                                     <div className="relative">
@@ -76,7 +67,19 @@ export default function OrganizationUsersTable() {
                                             onChange={(e) => setSearch(e.target.value)}
                                         />
                                     </div>
-                                    <Button>ADD MEMBER</Button>
+                                    <EditUserDialog user={{
+                                        firstName: '',
+                                        lastName: '',
+                                        email: '',
+                                        role: 'standard',
+                                        title: '',
+                                        department: '',
+                                        linkedInUrl: '',
+                                        designatedApprover: ''
+                                    }} triggerButton={<Button><UserPlus2 className="h-4 w-4 mr-2" />ADD USER</Button>}
+                                        dialogTitle='Add New User'
+                                        dialogDescription='Fill in the details below to add a new user.'
+                                    />
                                 </div>
                             </div>
 
@@ -84,46 +87,82 @@ export default function OrganizationUsersTable() {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-[300px]">Name</TableHead>
-                                        <TableHead>Function</TableHead>
+                                        <TableHead>Role</TableHead>
                                         <TableHead>Status</TableHead>
-                                        <TableHead>Date Added</TableHead>
-                                        <TableHead className="w-[50px]"></TableHead>
+                                        <TableHead>First Login</TableHead>
+                                        <TableHead>Last Login</TableHead>
+                                        <TableHead></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredMembers.slice((page - 1) * 6, page * 6).map((member) => (
-                                        <TableRow key={member.id}>
-                                            <TableCell className="flex items-center space-x-3">
-                                                <Avatar>
-                                                    <AvatarImage src={member.avatarUrl} alt={member.name} />
-                                                    <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                                <div>
-                                                    <div className="font-medium">{member.name}</div>
-                                                    <div className="text-sm text-gray-500">{member.email}</div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>{member.function}</div>
-                                                <div className="text-sm text-gray-500">{member.subFunction}</div>
-                                            </TableCell>
-                                            <TableCell className="flex items-center">
-                                                <div className={`px-2 py-1 rounded-full text-xs font-medium ${member.status === 'ACTIVE' ? 'bg-green-100' : 'bg-[#f1f3fe]'}`}>
-                                                    {member.status}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>{parseDate(member.employed).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</TableCell>
-                                            <TableCell>
-                                                <Button variant="ghost" size="sm">
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
+                                    {filteredUsers.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="text-center py-4">
+                                                No users found.
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    ) : (
+                                        filteredUsers.slice((page - 1) * 6, page * 6).map((user) => (
+                                            <TableRow key={user.user_id}>
+                                                <TableCell className="flex items-center space-x-3">
+                                                    <Avatar>
+                                                        <AvatarFallback>{user.first_name.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <div className="font-medium">{user.first_name} {user.last_name}</div>
+                                                        <div className="text-sm text-gray-500">{user.email}</div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>{user.role}</TableCell>
+                                                <TableCell className="flex items-center">
+                                                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${user.is_verified ? 'bg-green-100' : 'bg-[#f1f3fe]'}`}>
+                                                        {user.is_verified ? 'Verified' : 'Pending Verification'}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>{formatDate(user.first_login)}</TableCell>
+                                                <TableCell>{formatDate(user.last_login)}</TableCell>
+                                                <TableCell>
+                                                    <EditUserDialog user={{
+                                                        firstName: user.first_name,
+                                                        lastName: user.last_name,
+                                                        email: user.email,
+                                                        role: user.role as 'admin' | 'standard',
+                                                        title: '', // Provide default or fetched value
+                                                        department: '', // Provide default or fetched value
+                                                        linkedInUrl: '', // Provide default or fetched value
+                                                        designatedApprover: '' // Provide default or fetched value
+                                                    }} triggerButton={
+                                                        <Button variant="ghost" size="sm" className='hover:bg-green-100'>
+                                                            <Pencil className="h-4 w-4" />
+                                                        </Button>
+                                                    } />
+                                                    <AlertDialogWrapper
+                                                        triggerButton={
+                                                            <Button variant="ghost" size="sm" className="hover:bg-red-100">
+                                                                <LucideTrash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        }
+                                                        title='Delete User'
+                                                        description='Are you sure you want to delete this user?'
+                                                        confirmButtonText='Yes, Delete'
+                                                        onConfirm={() => {
+                                                            // Delete user logic here
+                                                            console.log(`Deleting document: ${user.first_name} ${user.last_name}`);
+                                                            showToast({
+                                                                title: "User Deleted",
+                                                                description: "The user has been deleted successfully.",
+                                                                type: "success",
+                                                            })
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
                                 </TableBody>
                             </Table>
 
-                            <div className="flex justify-between items-center mt-4">
+                            {totalPages > 0 && <div className="flex justify-between items-center mt-4">
                                 <p className="text-sm text-gray-500">
                                     Page {page} of {totalPages}
                                 </p>
@@ -135,7 +174,7 @@ export default function OrganizationUsersTable() {
                                         NEXT <ChevronRight className="h-4 w-4 ml-2" />
                                     </Button>
                                 </div>
-                            </div>
+                            </div>}
                         </div>
                     </Card>
                 </motion.div>

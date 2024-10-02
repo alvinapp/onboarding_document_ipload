@@ -19,7 +19,7 @@ const DialogWrapper: React.FC<DialogWrapperProps> = ({ triggerButton, title, des
         <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>{triggerButton}</Dialog.Trigger>
             <Dialog.Portal>
-                <Dialog.Overlay className="bg-black opacity-30 fixed inset-0" />
+                <Dialog.Overlay className="bg-black/50 backdrop-blur-sm fixed inset-0" />
                 <Dialog.Content className="bg-white p-6 rounded-md shadow-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md focus:outline-none">
                     <Dialog.Title className="text-xl font-bold mb-4">{title}</Dialog.Title>
                     {description && <Dialog.Description className="text-sm text-gray-500 mb-6">{description}</Dialog.Description>}

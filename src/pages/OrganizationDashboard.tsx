@@ -9,6 +9,7 @@ import logoSvg from '../assets/alvinlogo1.svg';
 import { motion } from 'framer-motion';
 import UploadDocumentDialog from '../components/documents/UploadDocumentDialog';
 import { useOrganizationStore } from '../store/useOrganizationStore';
+import { useUserStore } from '../store/useUserStore';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import ChangeOrganizationStageForm from '../components/organizations/UpdateOrganizationStepDialog';
@@ -17,6 +18,7 @@ import { useToast } from '../components/common/ToastProvider';
 
 export default function OrganizationDashboard() {
   const { selectedOrganization, selectOrganization } = useOrganizationStore();
+  const { users, setUsers } = useUserStore();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,6 +26,7 @@ export default function OrganizationDashboard() {
 
   const baseUrl = 'http://localhost:5001';
   const fetchOrganizationDataUrl = `${baseUrl}/onboarding_steps/all/${selectedOrganization?.organizationId}/`;
+  const fetchOganizationUsersurl = `${baseUrl}/users/organization/admin-users/${selectedOrganization?.organizationId}/`;
 
   // Fetch organization data on window refocus
   const { data: organizationData, refetch, isFetching } = useQuery(
@@ -36,6 +39,18 @@ export default function OrganizationDashboard() {
       enabled: !!selectedOrganization?.organizationId, // Enable query only if we have an organization ID
       initialData: selectedOrganization, // Use Zustand store data as initial data
       refetchOnWindowFocus: true, // Refetch when window is refocused
+    }
+  );
+
+
+  const { data: organizationUsersData } = useQuery(
+    ['organizationUsersData', selectedOrganization?.organizationId],
+    async () => {
+      const { data } = await axios.get(fetchOganizationUsersurl);
+      return data;
+    },
+    {
+      enabled: !!selectedOrganization?.organizationId,
     }
   );
 
@@ -72,6 +87,13 @@ export default function OrganizationDashboard() {
       selectOrganization(organization); // Update Zustand store
     }
   }, [organizationData, selectOrganization]);
+
+  // Update users in Zustand store
+  useEffect(() => {
+    if (organizationUsersData) {
+      setUsers(organizationUsersData?.users);
+    }
+  }, [organizationUsersData, setUsers]);
 
   // Pagination logic
   const totalDocuments = selectedOrganization?.documents?.length || 0;
@@ -142,8 +164,12 @@ export default function OrganizationDashboard() {
               {/* Change Stage and Upload Document */}
               <div className="flex justify-between">
                 {/* <Button variant="outline">Change stage</Button> */}
-                <ChangeOrganizationStageForm currentStage={launchpadStage} users={[{ name: "John Doe", email: "john@example.com" },
-                { name: "Jane Smith", email: "jane@example.com" }]} />
+                <ChangeOrganizationStageForm currentStage={launchpadStage} users={
+                  users && users.length > 0 ? users.map((user) => ({
+                    name: user.first_name + ' ' + user.last_name,
+                    email: user.email,
+                  })): []
+                } />
                 {/* UploadDocumentDialog uses the organizationId from Zustand */}
                 <UploadDocumentDialog organizationId={selectedOrganization.organizationId.toString()} />
               </div>
