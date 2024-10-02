@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from '../common/Avatar';
 import { Button } from '../common/Button';
 import { Progress } from '../common/Progress';
 import {
@@ -25,18 +24,25 @@ export default function CustomTable() {
   const perPage = 10;
   const navigate = useNavigate();
 
+  // State to handle filters - explicitly typed as Date | null for startDate, endDate, and string for stage
+  const [filters, setFilters] = useState<{ startDate: Date | null; endDate: Date | null; stage: string }>({
+    startDate: null,
+    endDate: null,
+    stage: '',
+  });
+
   const baseUrl = 'http://localhost:5001';
 
-  // Zustand store for managing organizations
   const { organizations, setOrganizations, selectOrganization } = useOrganizationStore();
 
-  // Fetching organization data
   const { data, isLoading, isError, isFetching } = useQuery(
-    ['onboardingSteps', page],
+    ['onboardingSteps', page, filters],
     () =>
       axios
         .get(
-          `${baseUrl}/onboarding_steps/all?page=${page}&per_page=${perPage}`
+          `${baseUrl}/onboarding_steps/all?page=${page}&per_page=${perPage}&start_date=${
+            filters.startDate ? filters.startDate.toISOString() : ''
+          }&end_date=${filters.endDate ? filters.endDate.toISOString() : ''}&stage=${filters.stage}`
         )
         .then((res) => res.data),
     {
@@ -45,11 +51,9 @@ export default function CustomTable() {
     }
   );
 
-  // Set organization data in Zustand when fetched
   useEffect(() => {
     if (data) {
       const orgData = data.steps.map((step: any) => {
-        // Extract all documents from the steps
         const documents = step.steps.flatMap((stepDetail: any) =>
           stepDetail.document_links.map((doc: any) => ({
             documentId: doc.id,
@@ -64,11 +68,11 @@ export default function CustomTable() {
             }),
           }))
         );
-  
+
         return {
           organizationId: step.organization_id,
           organization: step.organization_name,
-          assignee: ['John Doe', 'Jane Smith'], // Dummy assignee data
+          assignee: ['John Doe', 'Jane Smith'],
           launchpadStage: step.latest_step_name,
           launchpadStepNumber: step.latest_step_number,
           progress: step.latest_step_progress,
@@ -79,13 +83,25 @@ export default function CustomTable() {
                 year: 'numeric',
               })
             : 'N/A',
+          organizationCreatedOn: new Date(step.organization_created_on).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          }),
           documents: documents,
         };
       });
-  
+
       setOrganizations(orgData);
     }
   }, [data, setOrganizations]);
+
+  // Handle filter submission with proper typing
+  const handleFilter = ({ startDate, endDate, stage }: { startDate: Date | null; endDate: Date | null; stage: string | null }) => {
+    // Ensure stage is always a string (convert null to empty string)
+    setFilters({ startDate, endDate, stage: stage || '' });
+    setPage(1); // Reset to first page when applying new filters
+  };
 
   if (isLoading)
     return (
@@ -109,13 +125,9 @@ export default function CustomTable() {
           <p className="text-sm text-gray-500">{data.total} organizations</p>
         </div>
         <div className="flex gap-2">
-          {/* <Button variant="outline" className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            FILTER
-          </Button> */}
-          <DropdownButton label="Filter" icon={<Filter className="h-4 w-4" />} children={
-            <FilterDropdown onFilter={()=>{}}/>
-          }/>
+          {/* <DropdownButton label="Filter" icon={<Filter className="h-4 w-4" />} children={
+            <FilterDropdown onFilter={handleFilter} />
+          } /> */}
           <CreateOrganizationDialog />
         </div>
       </div>
@@ -123,62 +135,47 @@ export default function CustomTable() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[300px]">Organization</TableHead>
-            <TableHead>Assignee</TableHead>
             <TableHead>Launchpad Stage</TableHead>
-            <TableHead>Progress</TableHead>
             <TableHead>Due Date</TableHead>
+            <TableHead>Progress</TableHead>
+            <TableHead>Date Created</TableHead>
             <TableHead className="w-[50px]" />
           </TableRow>
         </TableHeader>
         <TableBody>
-          {organizations
-            .sort((a: any, b: any) => a.organization.localeCompare(b.organization))
-            .map((org: any, index: any) => (
-              <TableRow
-                key={org.organizationId}
-                className="cursor-pointer"
-                onClick={() => {
-                  selectOrganization(org); // Select organization in Zustand
-                  navigate('/organization-dashboard');
-                }}
-              >
-                <TableCell className="font-medium">{org.organization}</TableCell>
-                <TableCell>
-                  <div className="flex -space-x-2">
-                    {org.assignee.map((person: any, idx: any) => (
-                      <Avatar key={idx} className="border-2 border-white">
-                        <AvatarImage
-                          src={`https://randomuser.me/api/portraits/men/${
-                            (index + idx) % 100
-                          }.jpg`}
-                        />
-                        <AvatarFallback>{person.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium">
-                    {org.launchpadStage}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-col items-start gap-1">
-                    <span className="text-xs font-medium">{org.progress}%</span>
-                    <Progress
-                      value={org.progress}
-                      className="w-[80px] h-[10px] bg-[#f7f7f7]"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell>{org.dueDate}</TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+          {organizations.map((org: any) => (
+            <TableRow
+              key={org.organizationId}
+              className="cursor-pointer"
+              onClick={() => {
+                selectOrganization(org);
+                navigate('/organization-dashboard');
+              }}
+            >
+              <TableCell className="font-medium">{org.organization}</TableCell>
+              <TableCell>
+                <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium">
+                  {org.launchpadStage.toUpperCase()}
+                </span>
+              </TableCell>
+              <TableCell>{org.dueDate}</TableCell>
+              <TableCell>
+                <div className="flex flex-col items-start gap-1">
+                  <span className="text-xs font-medium">{org.progress}%</span>
+                  <Progress
+                    value={org.progress}
+                    className="w-[80px] h-[10px] bg-[#f7f7f7]"
+                  />
+                </div>
+              </TableCell>
+              <TableCell>{org.organizationCreatedOn}</TableCell>
+              <TableCell>
+                <Button variant="ghost" size="icon">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
       <div className="flex justify-between items-center mt-4">

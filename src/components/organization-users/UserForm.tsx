@@ -2,7 +2,6 @@ import React from 'react'
 import { Input } from "../common/Input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../common/Select"
 import { Button } from "../common/Button"
-import { Trash2 } from 'lucide-react'
 
 const stages = [
     "Request a customer needs analysis call",
@@ -16,28 +15,29 @@ const stages = [
 
 interface UserFormProps {
     user?: {
-        firstName: string
-        lastName: string
+        first_name: string
+        last_name: string
         email: string
         role: 'admin' | 'standard'
         title: string
         department: string
-        linkedInUrl: string
+        linkedin_url: string
         designatedApprover: string
     }
     onUpdate: (userData: any) => void
     onClose: () => void
+    isLoading: boolean
 }
 
-export default function UserForm({ user, onUpdate, onClose }: UserFormProps) {
+export default function UserForm({ user, onUpdate, onClose, isLoading }: UserFormProps) {
     const [userData, setUserData] = React.useState({
-        firstName: user?.firstName || '',
-        lastName: user?.lastName || '',
+        first_name: user?.first_name || '',
+        last_name: user?.last_name || '',
         email: user?.email || '',
         role: user?.role || 'standard',
         title: user?.title || '',
         department: user?.department || '',
-        linkedInUrl: user?.linkedInUrl || '',
+        linkedin_url: user?.linkedin_url || '',
         designatedApprover: user?.designatedApprover || ''
     })
 
@@ -53,7 +53,6 @@ export default function UserForm({ user, onUpdate, onClose }: UserFormProps) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         onUpdate(userData)
-        onClose()
     }
 
     return (
@@ -61,22 +60,24 @@ export default function UserForm({ user, onUpdate, onClose }: UserFormProps) {
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Input
-                        id="firstName"
-                        name="firstName"
-                        value={userData.firstName}
+                        id="first_name"
+                        name="first_name"
+                        value={userData.first_name}
                         onChange={handleInputChange}
                         placeholder='Enter first name'
                         required
+                        disabled={isLoading}  // Disable input during loading
                     />
                 </div>
                 <div className="space-y-2">
                     <Input
-                        id="lastName"
-                        name="lastName"
-                        value={userData.lastName}
+                        id="last_name"
+                        name="last_name"
+                        value={userData.last_name}
                         onChange={handleInputChange}
                         placeholder='Enter last name'
                         required
+                        disabled={isLoading}  // Disable input during loading
                     />
                 </div>
             </div>
@@ -90,6 +91,7 @@ export default function UserForm({ user, onUpdate, onClose }: UserFormProps) {
                     onChange={handleInputChange}
                     placeholder='Enter email'
                     required
+                    disabled={isLoading}  // Disable input during loading
                 />
             </div>
 
@@ -97,6 +99,7 @@ export default function UserForm({ user, onUpdate, onClose }: UserFormProps) {
                 <Select
                     value={userData.role}
                     onValueChange={handleSelectChange('role')}
+                    disabled={isLoading}  // Disable select during loading
                 >
                     <SelectTrigger id="role">
                         <SelectValue placeholder="Select a role" />
@@ -115,6 +118,7 @@ export default function UserForm({ user, onUpdate, onClose }: UserFormProps) {
                     value={userData.title}
                     onChange={handleInputChange}
                     placeholder='Enter title'
+                    disabled={isLoading}  // Disable input during loading
                 />
             </div>
 
@@ -125,17 +129,19 @@ export default function UserForm({ user, onUpdate, onClose }: UserFormProps) {
                     value={userData.department}
                     onChange={handleInputChange}
                     placeholder='Enter department'
+                    disabled={isLoading}  // Disable input during loading
                 />
             </div>
 
             <div className="space-y-2">
                 <Input
-                    id="linkedInUrl"
-                    name="linkedInUrl"
+                    id="linkedin_url"
+                    name="linkedin_url"
                     type="url"
-                    value={userData.linkedInUrl}
+                    value={userData.linkedin_url}
                     onChange={handleInputChange}
                     placeholder='Enter LinkedIn URL'
+                    disabled={isLoading}  // Disable input during loading
                 />
             </div>
 
@@ -143,6 +149,7 @@ export default function UserForm({ user, onUpdate, onClose }: UserFormProps) {
                 <Select
                     value={userData.designatedApprover}
                     onValueChange={handleSelectChange('designatedApprover')}
+                    disabled={isLoading}  // Disable select during loading
                 >
                     <SelectTrigger id="designatedApprover">
                         <SelectValue placeholder="Select a designated approver stage" />
@@ -161,15 +168,16 @@ export default function UserForm({ user, onUpdate, onClose }: UserFormProps) {
                 <Button
                     variant='outline'
                     onClick={onClose}
+                    disabled={isLoading}  // Disable cancel button during loading
                 >
                     Cancel
                 </Button>
                 <Button
                     type="submit"
                     className="hover:bg-blue-700"
-                    onClick={handleSubmit}
+                    disabled={isLoading}  // Disable submit button during loading
                 >
-                    Submit
+                    {isLoading ? 'Submitting...' : 'Submit'}
                 </Button>
             </div>
         </form>

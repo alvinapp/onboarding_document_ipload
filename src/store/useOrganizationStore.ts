@@ -18,6 +18,7 @@ interface Organization {
   documents: Document[];
   progress: number;
   dueDate: string;
+  organizationCreatedOn: string;
 }
 
 interface OrganizationStore {

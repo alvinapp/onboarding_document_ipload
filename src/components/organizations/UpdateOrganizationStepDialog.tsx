@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "../common/Button"
 import { Input } from "../common/Input"
-import { X, Check, User, UploadIcon } from 'lucide-react'
+import { Check, User, UploadIcon } from 'lucide-react'
 import { useToast } from '../common/ToastProvider'
 import DialogWrapper from '../common/DialogWrapper'
 

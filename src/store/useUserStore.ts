@@ -33,11 +33,17 @@ interface User {
   external_linked_accounts: ExternalLinkedAccount[];
   last_login: string | null;
   first_login: string | null;
+  department: string;
+  linkedInUrl: string;
+  title: string;
 }
 
 interface UserStore {
   users: User[];
   setUsers: (users: User[]) => void;
+  addUser: (user: User) => void;
+  updateUser: (user: User) => void;
+  deleteUser: (email: string) => void;
   getUserById: (id: number) => User | undefined;
 }
 
@@ -59,6 +65,22 @@ export const useUserStore = create<UserStore>()(
     (set, get) => ({
       users: [],
       setUsers: (users: User[]) => set({ users }),
+
+      // Add a new user to the store
+      addUser: (newUser: User) => set((state) => ({ users: [...state.users, newUser] })),
+
+      // Update an existing user in the store
+      updateUser: (updatedUser: User) => set((state) => ({
+        users: state.users.map((user) =>
+          user.user_id === updatedUser.user_id ? updatedUser : user
+        ),
+      })),
+
+      // Delete a user from the store
+      deleteUser: (email: string) => set((state) => ({
+        users: state.users.filter((user) => user.email !== email),
+      })),
+
       getUserById: (id: number) => {
         const { users } = get();
         return users.find((user) => user.user_id === id);

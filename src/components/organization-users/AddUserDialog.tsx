@@ -4,10 +4,10 @@ import UserForm from './UserForm';
 import { useMutation } from 'react-query';
 import { useToast } from '../common/ToastProvider';
 import { useUserStore } from '../../store/useUserStore';
+import { useOrganizationStore } from '../../store/useOrganizationStore';
 
-interface EditUserDialogProps {
+interface AddUserDialogProps {
     user?: {
-        user_id: number;
         first_name: string;
         last_name: string;
         email: string;
@@ -22,16 +22,18 @@ interface EditUserDialogProps {
     dialogDescription?: string;
 }
 
-const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, triggerButton, dialogTitle, dialogDescription }) => {
-    const baseUrl = 'http://localhost:5001';
-    const editUserUrl = `${baseUrl}/users/edit/${user?.email}`;
+const AddUserDialog: React.FC<AddUserDialogProps> = ({ user, triggerButton, dialogTitle, dialogDescription }) => {
+    const { selectedOrganization } = useOrganizationStore();
     const { showToast } = useToast();
-    const { updateUser } = useUserStore();
+    const { addUser } = useUserStore();
 
-    // Use useMutation for handling the user edit request
-    const { mutate: editUser, isLoading, isError } = useMutation(
+    const baseUrl = 'http://localhost:5001';
+    const addUserUrl = `${baseUrl}/users/admin/add_user/${selectedOrganization?.organizationId}`;
+
+    // Use useMutation for handling the user addition request
+    const { mutate: addNewUser, isLoading, isError } = useMutation(
         async (userData: any) => {
-            const response = await fetch(editUserUrl, {
+            const response = await fetch(addUserUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -42,29 +44,28 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, triggerButton, di
                 const { message } = await response.json();
                 showToast({
                     title: 'Error',
-                    description: message || 'Failed to update user. Please try again.',
+                    description: message,
                     type: 'error',
                 });
-                throw new Error('Failed to update user');
+                throw new Error('Failed to add user');
             }
             return response.json();
         },
         {
             onSuccess: (updatedUser) => {
-                // Update the store with the updated user data from the server
-                updateUser(updatedUser.user);
                 showToast({
-                    title: 'User updated',
-                    description: 'User details have been updated successfully.',
+                    title: 'User added',
+                    description: 'User has been added successfully.',
                     type: 'success',
                 });
+                addUser(updatedUser.user);
             },
         }
     );
 
     const handleUpdate = (userData: any, onClose: () => void) => {
         // Trigger the mutation and only close the modal on success
-        editUser(userData, {
+        addNewUser(userData, {
             onSuccess: () => {
                 onClose();  // Close the modal on success
             },
@@ -74,19 +75,19 @@ const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, triggerButton, di
     return (
         <DialogWrapper
             triggerButton={triggerButton}
-            title={dialogTitle || 'Edit User'}
-            description={dialogDescription || 'Update user details below.'}
+            title={dialogTitle || 'Add User'}
+            description={dialogDescription || 'Fill in the details below to add a new user.'}
         >
             {(onClose) => (
                 <UserForm
                     user={user || undefined}
-                    onUpdate={(userData) => handleUpdate(userData, onClose)}
+                    onUpdate={(userData: any) => handleUpdate(userData, onClose)}
                     onClose={onClose}
-                    isLoading={isLoading}  // Pass the loading state to the form
+                    isLoading={isLoading}
                 />
             )}
         </DialogWrapper>
     );
 };
 
-export default EditUserDialog;
+export default AddUserDialog;

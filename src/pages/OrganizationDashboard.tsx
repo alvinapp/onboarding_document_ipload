@@ -69,6 +69,11 @@ export default function OrganizationDashboard() {
           day: 'numeric',
           year: 'numeric',
         }) : 'N/A',
+        organizationCreatedOn: new Date(organizationData.organization_created_on).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        }),
         documents: organizationData.steps.flatMap((step: any) =>
           step.document_links.map((doc: any) => ({
             documentId: doc.id,
