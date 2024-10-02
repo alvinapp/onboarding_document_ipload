@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Input } from "../common/Input";
 import { Button } from "../common/Button";
 import { Avatar, AvatarFallback } from "../common/Avatar";
-import { ChevronLeft, ChevronRight, Search, Pencil, LucideTrash2, UserPlus2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Pencil, LucideTrash2, UserPlus2, RefreshCwIcon, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useUserStore } from '../../store/useUserStore';
 import { useOrganizationStore } from '../../store/useOrganizationStore';
@@ -128,7 +128,7 @@ export default function OrganizationUsersTable() {
                                 </div>
                                 <div className="flex space-x-4">
                                     <Button variant="outline" size="sm" onClick={() => fetchUsers()} disabled={isUsersLoading}>
-                                        REFRESH
+                                    {isUsersLoading ? <Loader2 className="h-4 w-4 animate-spin" />: <RefreshCwIcon className='h-4 w-4' />}
                                     </Button>
                                     <div className="relative">
                                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />

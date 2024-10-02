@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '../common/Table';
-import { MoreHorizontal, Filter, ChevronLeft } from 'lucide-react';
+import { MoreHorizontal, Filter, ChevronLeft, Loader2, RefreshCwIcon } from 'lucide-react';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import CustomLoader from '../common/CustomLoader';
@@ -35,13 +35,12 @@ export default function CustomTable() {
 
   const { organizations, setOrganizations, selectOrganization } = useOrganizationStore();
 
-  const { data, isLoading, isError, isFetching } = useQuery(
+  const { data, isLoading, isError, isFetching, refetch } = useQuery(
     ['onboardingSteps', page, filters],
     () =>
       axios
         .get(
-          `${baseUrl}/onboarding_steps/all?page=${page}&per_page=${perPage}&start_date=${
-            filters.startDate ? filters.startDate.toISOString() : ''
+          `${baseUrl}/onboarding_steps/all?page=${page}&per_page=${perPage}&start_date=${filters.startDate ? filters.startDate.toISOString() : ''
           }&end_date=${filters.endDate ? filters.endDate.toISOString() : ''}&stage=${filters.stage}`
         )
         .then((res) => res.data),
@@ -78,10 +77,10 @@ export default function CustomTable() {
           progress: step.latest_step_progress,
           dueDate: step.due_date
             ? new Date(step.due_date).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
             : 'N/A',
           organizationCreatedOn: new Date(step.organization_created_on).toLocaleDateString('en-US', {
             month: 'short',
@@ -125,9 +124,10 @@ export default function CustomTable() {
           <p className="text-sm text-gray-500">{data.total} organizations</p>
         </div>
         <div className="flex gap-2">
-          {/* <DropdownButton label="Filter" icon={<Filter className="h-4 w-4" />} children={
-            <FilterDropdown onFilter={handleFilter} />
-          } /> */}
+          {/* Refresh Button */}
+          <Button variant="outline" onClick={() => refetch()} disabled={isLoading || isFetching}>
+            {isLoading || isFetching ? <Loader2 className="h-4 w-4 animate-spin" />: <RefreshCwIcon className='h-4 w-4' />}
+          </Button>
           <CreateOrganizationDialog />
         </div>
       </div>
