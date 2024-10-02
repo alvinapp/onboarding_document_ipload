@@ -4,10 +4,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Input } from '../common/Input';
 import { useToast } from '../common/ToastProvider';
 import { countries } from '../../data/countries';
+import { useMutation } from 'react-query';
+import { useOrganizationStore } from '../../store/useOrganizationStore';
 
 interface Organization {
-    organizationName: string;
-    organizationType: 'fintech' | 'bank' | 'distribution channel partners' | '';
+    name: string;
+    type: 'fintech' | 'bank' | 'distribution channel partners' | '';
     country: string;
 }
 
@@ -16,23 +18,78 @@ interface CreateOrganizationFormProps {
 }
 
 const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({ onClose }) => {
-    const [organization, setOrganization] = useState<Organization>({
-        organizationName: '',
-        organizationType: '',
-        country: 'Nigeria', // Default country
-    });
+    const { addOrganization } = useOrganizationStore();
+    const baseurl = 'http://localhost:5001';
+    const createOrganizationUrl = `${baseurl}/organizations/create`;
 
     const { showToast } = useToast();
+    const [organization, setOrganization] = useState<Organization>({
+        name: '',
+        type: '',
+        country: 'Nigeria', // Default country
+    });
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Use the useMutation hook to create a new organization
+    const createOrganizationMutation = useMutation(
+        async (organization: Organization) => {
+            setIsLoading(true);
+            const response = await fetch(createOrganizationUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(organization),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create organization.');
+            }
+            return response.json();
+        },
+        {
+            onSuccess: (data) => {
+                showToast({
+                    title: 'Organization Created',
+                    description: `Organization ${organization.name} has been created successfully.`,
+                    type: 'success',
+                    duration: 5000,
+                });
+                addOrganization({
+                    ...data, 
+                    "launchpadStage": data.onboarding_steps[0].step_name,
+                    "organizationCreatedOn": new Date(data.onboarding_steps[0].organization_created_on).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                    }),
+                    "progress": data.onboarding_steps[0].progress,
+                    "dueDate": data.onboarding_steps[0].due_date
+                        ? new Date(data.onboarding_steps[0].due_date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                        })
+                        : 'N/A',
+                    "organizationId": data.id,
+                    "organization": data.name,
+                }); 
+                setIsLoading(false);
+                onClose(); // Close the dialog only on success
+            },
+            onError: (error) => {
+                showToast({
+                    title: 'Error',
+                    description: 'Failed to create organization. Please try again.',
+                    type: 'error',
+                });
+                setIsLoading(false); // Stop the loading state
+            },
+        }
+    );
 
     const handleCreateOrganization = () => {
-        console.log('Organization Created:', organization);
-        showToast({
-            title: 'Organization Created',
-            description: `Organization ${organization.organizationName} has been created successfully.`,
-            type: 'success',
-            duration: 5000,
-        });
-        onClose();  // Trigger close after submission
+        createOrganizationMutation.mutate(organization);
     };
 
     const organizationTypeOptions = [
@@ -45,21 +102,23 @@ const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({ onClose
         <div>
             <Input
                 type="text"
-                value={organization.organizationName}
-                onChange={(e) => setOrganization({ ...organization, organizationName: e.target.value })}
+                value={organization.name}
+                onChange={(e) => setOrganization({ ...organization, name: e.target.value })}
                 placeholder="Enter organization name"
                 className='mb-4'
+                disabled={isLoading}  // Disable input during loading
             />
 
             <div className='mb-4'>
                 <Select
-                    value={organization.organizationType}
+                    value={organization.type}
                     onValueChange={(e) =>
                         setOrganization({
                             ...organization,
-                            organizationType: e as 'fintech' | 'bank' | 'distribution channel partners',
+                            type: e as 'fintech' | 'bank' | 'distribution channel partners',
                         })
                     }
+                    disabled={isLoading}  // Disable select during loading
                 >
                     <SelectTrigger>
                         <SelectValue placeholder="Select organization type" />
@@ -75,7 +134,11 @@ const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({ onClose
             </div>
 
             <div className='mb-4'>
-                <Select value={organization.country} onValueChange={(e) => setOrganization({ ...organization, country: e })}>
+                <Select
+                    value={organization.country}
+                    onValueChange={(e) => setOrganization({ ...organization, country: e })}
+                    disabled={isLoading}  // Disable select during loading
+                >
                     <SelectTrigger>
                         <SelectValue placeholder="Select country" />
                     </SelectTrigger>
@@ -90,8 +153,12 @@ const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({ onClose
             </div>
 
             <div className="mt-6 flex justify-end">
-                <Button onClick={handleCreateOrganization} className="w-full">
-                    Create Organization
+                <Button
+                    onClick={handleCreateOrganization}
+                    className="w-full"
+                    disabled={isLoading}  // Disable button during loading
+                >
+                    {isLoading ? 'Creating...' : 'Create Organization'}
                 </Button>
             </div>
         </div>

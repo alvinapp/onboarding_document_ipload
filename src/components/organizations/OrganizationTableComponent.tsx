@@ -155,7 +155,7 @@ export default function CustomTable() {
               <TableCell className="font-medium">{org.organization}</TableCell>
               <TableCell>
                 <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium">
-                  {org.launchpadStage.toUpperCase()}
+                  {org.launchpadStage?.toUpperCase()}
                 </span>
               </TableCell>
               <TableCell>{org.dueDate}</TableCell>
