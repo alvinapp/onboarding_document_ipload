@@ -133,7 +133,6 @@ const DocUpload: React.FC = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('Upload successful:', response.data);
       showToast({
         type: 'success',
         title: 'Success',
@@ -142,7 +141,6 @@ const DocUpload: React.FC = () => {
       });
       resetForm();
     } catch (error) {
-      console.error('Upload failed:', error);
       showToast({
         type: 'error',
         title: 'Error',

@@ -42,7 +42,6 @@ export default function ChangeOrganizationStageForm({
     // Mutation logic to change the organization stage
     const changeStageMutation = useMutation(
         async (newStepNumber: number) => {
-            console.log('Changing organization stage to:', newStepNumber, 'from:', selectedOrganization?.launchpadStepNumber);
             setIsLoading(true);  // Set loading state to true when the mutation starts
             const response = await fetch(changeStageUrl, {
                 method: 'POST',
@@ -59,7 +58,6 @@ export default function ChangeOrganizationStageForm({
         },
         {
             onSuccess: (data) => {
-                console.log('Organization stage changed:', data);
                 updateOrganization(data);
                 setIsLoading(false);  // Set loading state to false on success
                 showToast({
@@ -101,7 +99,6 @@ export default function ChangeOrganizationStageForm({
                 }
             });
         }
-        console.log('Publishing stage change for users:', selectedUsers);
     };
 
     return (

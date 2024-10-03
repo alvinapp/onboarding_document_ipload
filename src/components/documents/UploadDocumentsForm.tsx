@@ -107,7 +107,6 @@ const UploadDocumentsForm: React.FC<UploadDocumentsFormProps> = ({ organizationI
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            console.log('Upload successful:', response.data);
             showToast({
                 type: 'success',
                 title: 'Success',
@@ -117,7 +116,6 @@ const UploadDocumentsForm: React.FC<UploadDocumentsFormProps> = ({ organizationI
             onClose();
             resetForm();
         } catch (error) {
-            console.error('Upload failed:', error);
             showToast({
                 type: 'error',
                 title: 'Error',

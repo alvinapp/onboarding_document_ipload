@@ -9,12 +9,22 @@ interface Document {
     createdAt: string;
 }
 
+interface Steps {
+    stepId: string;
+    stepName: string;
+    stepNumber: number;
+    progress: number;
+    dueDate: string;
+    createdOn: string;
+}
+
 interface Organization {
     organizationId: string;
     organization: string;
     launchpadStage: string;
     launchpadStepNumber: number;
     documents: Document[];
+    steps?: Steps[];
     progress: number;
     dueDate: string;
     organizationCreatedOn: string;

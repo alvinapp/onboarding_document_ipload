@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { ArrowLeft, ChevronLeft, LucideTrash2 } from 'lucide-react';
 import Timeline from '../components/organizations/OrganizationOnboardingTimeline';
 import logoSvg from '../assets/alvinlogo1.svg';
-import { motion } from 'framer-motion';
+import { motion, steps } from 'framer-motion';
 import UploadDocumentDialog from '../components/documents/UploadDocumentDialog';
 import { useOrganizationStore } from '../store/useOrganizationStore';
 import { useUserStore } from '../store/useUserStore';
@@ -69,11 +69,8 @@ export default function OrganizationDashboard() {
           day: 'numeric',
           year: 'numeric',
         }) : 'N/A',
-        organizationCreatedOn: new Date(organizationData.organization_created_on).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-        }),
+        organizationCreatedOn: organizationData.steps[0].organization_created_on,
+        steps: organizationData.steps,
         documents: organizationData.steps.flatMap((step: any) =>
           step.document_links.map((doc: any) => ({
             documentId: doc.id,
@@ -162,7 +159,12 @@ export default function OrganizationDashboard() {
           <div className="mt-8 flex flex-col md:flex-row gap-8">
             {/* Timeline */}
             <div className="w-full md:w-1/3">
-              <Timeline currentStage={currentStage} onRefresh={refetch} isLoading={isFetching} />
+              <Timeline currentStage={currentStage} steps={
+                  selectedOrganization.steps?.map((step: any) => ({
+                    step_name: step.step_name,
+                    created_on: step.created_on
+                  })) || []
+              } onRefresh={refetch} isLoading={isFetching} organizationCreatedOn={selectedOrganization.organizationCreatedOn} />
             </div>
 
             <div className="w-full md:w-2/3 space-y-6">
@@ -226,8 +228,6 @@ export default function OrganizationDashboard() {
                                 description='Are you sure you want to delete this document?'
                                 confirmButtonText='Yes, Delete'
                                 onConfirm={() => {
-                                  // Delete document logic here
-                                  console.log(`Deleting document: ${doc.documentName}`);
                                   showToast({
                                     title: "Document deleted",
                                     description: "The document has been deleted successfully.",
