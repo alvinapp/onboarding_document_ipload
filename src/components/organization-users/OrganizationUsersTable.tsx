@@ -127,7 +127,7 @@ export default function OrganizationUsersTable() {
                                     <p className="text-sm text-gray-500">See information about all users</p>
                                 </div>
                                 <div className="flex space-x-4">
-                                    <Button variant="outline" size="sm" onClick={() => fetchUsers()} disabled={isUsersLoading}>
+                                    <Button variant="outline" onClick={() => fetchUsers()} disabled={isUsersLoading}>
                                     {isUsersLoading ? <Loader2 className="h-4 w-4 animate-spin" />: <RefreshCwIcon className='h-4 w-4' />}
                                     </Button>
                                     <div className="relative">
