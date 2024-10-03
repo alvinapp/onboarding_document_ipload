@@ -26,7 +26,7 @@ const App: React.FC = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/organizations" element={<OrganizationTable />} />
             <Route path="/organization-dashboard" element={<OrganizationDashboard />} />
-            <Route path="/organization-users/" element={<OrganizationUsersTable />} />
+            <Route path="/organization-users" element={<OrganizationUsersTable />} />
           </Routes>
         </Router>
       </ToastProvider>

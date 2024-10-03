@@ -118,7 +118,7 @@ export default function OrganizationUsersTable() {
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
                     <Card>
                         <div className="p-6">
-                            <div className="flex items-center shadow p-2 rounded-md bg-white w-8 cursor-pointer hover:bg-accent" onClick={() => navigate(-1)}>
+                            <div className="flex items-center shadow p-2 rounded-md bg-white w-8 cursor-pointer hover:bg-accent" onClick={() => navigate('/organization-dashboard')}>
                                 <ChevronLeft className="h-4 w-4" />
                             </div>
                             <div className="flex justify-between items-center mb-6">

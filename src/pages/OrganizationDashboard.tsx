@@ -138,7 +138,7 @@ export default function OrganizationDashboard() {
           </CardHeader>
           <CardContent>
             No organization selected. Please go back and select an organization.
-            <Button onClick={() => navigate(-1)} variant="outline" className="w-full mt-4">
+            <Button onClick={() => navigate('/organizations')} variant="outline" className="w-full mt-4">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back
             </Button>
           </CardContent>
@@ -162,7 +162,7 @@ export default function OrganizationDashboard() {
           {/* Back Button */}
           <div
             className="flex items-center shadow p-2 rounded-md bg-white w-8 cursor-pointer hover:bg-accent"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/organizations')}
           >
             <ChevronLeft className="h-4 w-4" />
           </div>
@@ -173,7 +173,7 @@ export default function OrganizationDashboard() {
             <div>Current next step: {launchpadStage || 'N/A'}.</div>
             <div>Due by: {dueDate || 'N/A'}</div>
             <Button variant="link" className="ml-2 text-blue-600" onClick={() => {
-              navigate('/organization-users/')
+              navigate('/organization-users')
             }}>
               See all users of this organization
             </Button>

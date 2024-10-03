@@ -10,19 +10,21 @@ import {
   TableHeader,
   TableRow,
 } from '../common/Table';
-import { MoreHorizontal, Filter, ChevronLeft, Loader2, RefreshCwIcon } from 'lucide-react';
-import { useQuery } from 'react-query';
+import { ChevronLeft, Loader2, RefreshCwIcon, Pencil, LucideTrash2 } from 'lucide-react';
+import { useQuery, useMutation } from 'react-query';
 import axios from 'axios';
 import CustomLoader from '../common/CustomLoader';
 import CreateOrganizationDialog from './CreateOrganizationDialog';
 import { useOrganizationStore } from '../../store/useOrganizationStore';
-import { DropdownButton } from '../common/DropDownButton';
-import { FilterDropdown } from './FilterProps';
+import EditOrganizationDialog from './EditOrganizationDialog';
+import AlertDialogWrapper from '../common/AlertDialogWrapper';
+import { useToast } from '../common/ToastProvider';
 
 export default function CustomTable() {
   const [page, setPage] = useState(1);
   const perPage = 10;
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   // State to handle filters - explicitly typed as Date | null for startDate, endDate, and string for stage
   const [filters, setFilters] = useState<{ startDate: Date | null; endDate: Date | null; stage: string }>({
@@ -49,6 +51,25 @@ export default function CustomTable() {
       staleTime: 60 * 1000 * 5,
     }
   );
+
+
+  const deleteOrg = useMutation((organizationId: string) => axios.post(`${baseUrl}/organizations/${organizationId}/delete`), {
+    onSuccess: () => {
+      showToast({
+        title: 'Success',
+        description: 'Organization deleted successfully.',
+        type: 'success',
+      });
+      refetch();
+    },
+    onError: () => {
+      showToast({
+        title: 'Error',
+        description: 'Failed to delete organization.',
+        type: 'error',
+      });
+    },
+  });
 
   useEffect(() => {
     if (data) {
@@ -126,7 +147,7 @@ export default function CustomTable() {
         <div className="flex gap-2">
           {/* Refresh Button */}
           <Button variant="outline" onClick={() => refetch()} disabled={isLoading || isFetching}>
-            {isLoading || isFetching ? <Loader2 className="h-4 w-4 animate-spin" />: <RefreshCwIcon className='h-4 w-4' />}
+            {isLoading || isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCwIcon className='h-4 w-4' />}
           </Button>
           <CreateOrganizationDialog />
         </div>
@@ -147,19 +168,27 @@ export default function CustomTable() {
             <TableRow
               key={org.organizationId}
               className="cursor-pointer"
-              onClick={() => {
+            >
+              <TableCell className="font-medium" onClick={() => {
                 selectOrganization(org);
                 navigate('/organization-dashboard');
-              }}
-            >
-              <TableCell className="font-medium">{org.organization}</TableCell>
-              <TableCell>
+              }}>{org.organization}</TableCell>
+              <TableCell onClick={() => {
+                selectOrganization(org);
+                navigate('/organization-dashboard');
+              }}>
                 <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium">
                   {org.launchpadStage?.toUpperCase()}
                 </span>
               </TableCell>
-              <TableCell>{org.dueDate}</TableCell>
-              <TableCell>
+              <TableCell onClick={() => {
+                selectOrganization(org);
+                navigate('/organization-dashboard');
+              }}>{org.dueDate}</TableCell>
+              <TableCell onClick={() => {
+                selectOrganization(org);
+                navigate('/organization-dashboard');
+              }}>
                 <div className="flex flex-col items-start gap-1">
                   <span className="text-xs font-medium">{org.progress}%</span>
                   <Progress
@@ -168,11 +197,25 @@ export default function CustomTable() {
                   />
                 </div>
               </TableCell>
-              <TableCell>{org.organizationCreatedOn}</TableCell>
+              <TableCell onClick={() => {
+                selectOrganization(org);
+                navigate('/organization-dashboard');
+              }}>{org.organizationCreatedOn}</TableCell>
               <TableCell>
-                <Button variant="ghost" size="icon">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
+                <div className='flex flex-row items-center gap-2'>
+                  <EditOrganizationDialog organization={org} />
+                  {/* <AlertDialogWrapper
+                    triggerButton={
+                      <Button variant="ghost" size="sm" className="hover:bg-red-100">
+                        <LucideTrash2 className="h-4 w-4" />
+                      </Button>
+                    }
+                    title="Delete User"
+                    description="Are you sure you want to delete this user?"
+                    confirmButtonText="Yes, Delete"
+                    onConfirm={() => deleteOrg.mutate(org.organizationId)}
+                  /> */}
+                </div>
               </TableCell>
             </TableRow>
           ))}
