@@ -31,7 +31,7 @@ export default function CustomTable() {
     stage: '',
   });
 
-  const baseUrl = 'http://localhost:5001';
+  const baseUrl = process.env.REACT_APP_BASE_URL;
 
   const { organizations, setOrganizations, selectOrganization } = useOrganizationStore();
 

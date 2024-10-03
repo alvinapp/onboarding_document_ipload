@@ -11,7 +11,7 @@ import { useToast } from "../components/common/ToastProvider";
 import logoSvg from '../assets/alvinlogo1.svg';
 import { motion, AnimatePresence } from "framer-motion";
 
-const baseUrl = 'http://localhost:5001';
+const baseUrl = process.env.REACT_APP_BASE_URL;
 
 interface Organization {
   value: string;

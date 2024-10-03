@@ -41,7 +41,7 @@ export default function OrganizationUsersTable() {
     const { users, deleteUser, setUsers } = useUserStore();
     const { selectedOrganization } = useOrganizationStore();
     const { showToast } = useToast();
-    const baseUrl = 'http://localhost:5001';
+    const baseUrl = process.env.REACT_APP_BASE_URL;
 
     const deleteUserUrl = `${baseUrl}/users/admin/delete`;
     const fetchOganizationUsersurl = `${baseUrl}/users/organization/admin-users/${selectedOrganization?.organizationId}/`;

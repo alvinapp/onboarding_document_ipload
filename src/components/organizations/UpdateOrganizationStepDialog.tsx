@@ -36,7 +36,7 @@ export default function ChangeOrganizationStageForm({
     const [isLoading, setIsLoading] = useState(false); // Loading state for the request
     const { selectedOrganization, updateOrganization } = useOrganizationStore();
 
-    const baseurl = 'http://localhost:5001';
+    const baseurl = process.env.REACT_APP_BASE_URL;
     const changeStageUrl = `${baseurl}/onboarding_steps/organization/${selectedOrganization?.organizationId}/progress_step`;
 
     // Mutation logic to change the organization stage

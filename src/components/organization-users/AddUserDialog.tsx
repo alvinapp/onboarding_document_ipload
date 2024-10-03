@@ -27,7 +27,7 @@ const AddUserDialog: React.FC<AddUserDialogProps> = ({ user, triggerButton, dial
     const { showToast } = useToast();
     const { addUser } = useUserStore();
 
-    const baseUrl = 'http://localhost:5001';
+    const baseUrl = process.env.REACT_APP_BASE_URL;
     const addUserUrl = `${baseUrl}/users/admin/add_user/${selectedOrganization?.organizationId}`;
 
     // Use useMutation for handling the user addition request

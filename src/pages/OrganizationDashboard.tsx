@@ -24,7 +24,7 @@ export default function OrganizationDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const documentsPerPage = 5;
 
-  const baseUrl = 'http://localhost:5001';
+  const baseUrl = process.env.REACT_APP_BASE_URL;
   const fetchOrganizationDataUrl = `${baseUrl}/onboarding_steps/all/${selectedOrganization?.organizationId}/`;
   const fetchOganizationUsersurl = `${baseUrl}/users/organization/admin-users/${selectedOrganization?.organizationId}/`;
 

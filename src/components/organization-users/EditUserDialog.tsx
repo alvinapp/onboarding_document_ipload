@@ -23,7 +23,7 @@ interface EditUserDialogProps {
 }
 
 const EditUserDialog: React.FC<EditUserDialogProps> = ({ user, triggerButton, dialogTitle, dialogDescription }) => {
-    const baseUrl = 'http://localhost:5001';
+    const baseUrl = process.env.REACT_APP_BASE_URL;
     const editUserUrl = `${baseUrl}/users/edit/${user?.email}`;
     const { showToast } = useToast();
     const { updateUser } = useUserStore();

@@ -8,7 +8,7 @@ import { Loader2, Upload, ArrowLeft } from "lucide-react";
 import { useToast } from "../common/ToastProvider";
 import { motion, AnimatePresence } from "framer-motion";
 
-const baseUrl = 'http://localhost:5001';
+const baseUrl = process.env.REACT_APP_BASE_URL;
 
 interface OnboardingState {
     value: string;

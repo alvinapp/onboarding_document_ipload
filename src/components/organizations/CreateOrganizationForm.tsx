@@ -19,7 +19,7 @@ interface CreateOrganizationFormProps {
 
 const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({ onClose }) => {
     const { addOrganization } = useOrganizationStore();
-    const baseurl = 'http://localhost:5001';
+    const baseurl = process.env.REACT_APP_BASE_URL;
     const createOrganizationUrl = `${baseurl}/organizations/create`;
 
     const { showToast } = useToast();
