@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Loader2, Upload, ArrowLeft } from "lucide-react";
 import { useToast } from "../common/ToastProvider";
 import { motion, AnimatePresence } from "framer-motion";
+import { useOrganizationStore } from '../../store/useOrganizationStore'; // Import the zustand store
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -51,6 +52,7 @@ const UploadDocumentsForm: React.FC<UploadDocumentsFormProps> = ({ organizationI
     const [documentType, setDocumentType] = useState<string>('');
     const [documentName, setDocumentName] = useState<string>('');
     const { showToast } = useToast();
+    const { addDocument } = useOrganizationStore(); // Get addDocument from zustand
 
     // Fetch onboarding states based on the provided organizationId
     const { data: onboardingStates = [], isError: stepsError } = useQuery(
@@ -107,6 +109,18 @@ const UploadDocumentsForm: React.FC<UploadDocumentsFormProps> = ({ organizationI
                     'Content-Type': 'multipart/form-data',
                 },
             });
+
+            // Add document to the zustand store
+            const newDocument = {
+                documentId: response.data.id, // Assuming the API response returns the document ID
+                documentName: documentName,
+                documentType: documentType,
+                documentUrl: response.data.document_url, // Assuming the API returns the document URL
+                createdAt: new Date().toISOString(),
+            };
+
+            addDocument(organizationId, newDocument); // Add the document to the zustand store
+
             showToast({
                 type: 'success',
                 title: 'Success',
@@ -143,42 +157,42 @@ const UploadDocumentsForm: React.FC<UploadDocumentsFormProps> = ({ organizationI
                 transition={{ duration: 0.5 }}
             >
                 <div className="mb-4">
-                <Select value={selectedOnboardingState} onValueChange={setSelectedOnboardingState}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select onboarding state" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {onboardingStates.map((state) => (
-                            <SelectItem key={state.value} value={state.value}>
-                                {state.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    <Select value={selectedOnboardingState} onValueChange={setSelectedOnboardingState}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select onboarding state" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {onboardingStates.map((state) => (
+                                <SelectItem key={state.value} value={state.value}>
+                                    {state.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div className="mb-4">
-                <Select value={documentType} onValueChange={setDocumentType}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Select document type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {documentTypeOptions.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    <Select value={documentType} onValueChange={setDocumentType}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select document type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {documentTypeOptions.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                    {type.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div className="mb-4">
-                <Input
-                    type="text"
-                    value={documentName}
-                    onChange={(e) => setDocumentName(e.target.value)}
-                    placeholder="Enter document name"
-                />
+                    <Input
+                        type="text"
+                        value={documentName}
+                        onChange={(e) => setDocumentName(e.target.value)}
+                        placeholder="Enter document name"
+                    />
                 </div>
 
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-primary mb-4"

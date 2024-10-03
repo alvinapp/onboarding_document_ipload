@@ -3,18 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/common/Card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/common/Table';
-import { ArrowLeft, ChevronLeft, LucideTrash2 } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, LucideTrash2, Pencil } from 'lucide-react';
 import Timeline from '../components/organizations/OrganizationOnboardingTimeline';
 import logoSvg from '../assets/alvinlogo1.svg';
 import { motion, steps } from 'framer-motion';
 import UploadDocumentDialog from '../components/documents/UploadDocumentDialog';
 import { useOrganizationStore } from '../store/useOrganizationStore';
 import { useUserStore } from '../store/useUserStore';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 import axios from 'axios';
 import ChangeOrganizationStageForm from '../components/organizations/UpdateOrganizationStepDialog';
 import AlertDialogWrapper from '../components/common/AlertDialogWrapper';
 import { useToast } from '../components/common/ToastProvider';
+import EditDocumentDialog from '../components/documents/EditDocumentDialog';
 
 export default function OrganizationDashboard() {
   const { selectedOrganization, selectOrganization } = useOrganizationStore();
@@ -27,6 +28,28 @@ export default function OrganizationDashboard() {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   const fetchOrganizationDataUrl = `${baseUrl}/onboarding_steps/all/${selectedOrganization?.organizationId}/`;
   const fetchOganizationUsersurl = `${baseUrl}/users/organization/admin-users/${selectedOrganization?.organizationId}/`;
+  // const deleteDocumentUrl = `${baseUrl}/onboarding_steps/document/${documentId}/delete_document`;
+
+  // create a mutation to delete a document
+  const deleteDocumment = useMutation(async (documentId: string) => {
+    const response = await fetch(`${baseUrl}/onboarding_steps/document/${documentId}/delete_document`, {
+      method: 'POST',
+    });
+    if (!response.ok) {
+      showToast({
+        title: "Document deleted",
+        description: "The document has been deleted successfully.",
+        type: "success",
+      });
+      throw new Error('Failed to delete document');
+    }
+    showToast({
+      title: "Document deleted",
+      description: "The document has been deleted successfully.",
+      type: "success",
+    });
+    return response.json();
+  });
 
   // Fetch organization data on window refocus
   const { data: organizationData, refetch, isFetching } = useQuery(
@@ -218,6 +241,11 @@ export default function OrganizationDashboard() {
                             <TableCell className='py-1'>{doc.documentType}</TableCell>
                             <TableCell className='py-1'>{doc.createdAt}</TableCell>
                             <TableCell className='py-1'>
+                              <EditDocumentDialog organizationId={selectedOrganization?.organizationId} documentId={doc.documentId} documentName={doc.documentName} documentType={doc.documentType} triggerButton={
+                                <Button variant="ghost" size="sm" className="hover:bg-green-100">
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              }/>
                               <AlertDialogWrapper
                                 triggerButton={
                                   <Button variant="ghost" size="sm" className="hover:bg-red-200">
@@ -228,6 +256,7 @@ export default function OrganizationDashboard() {
                                 description='Are you sure you want to delete this document?'
                                 confirmButtonText='Yes, Delete'
                                 onConfirm={() => {
+                                  deleteDocumment.mutate(doc.documentId);
                                   showToast({
                                     title: "Document deleted",
                                     description: "The document has been deleted successfully.",

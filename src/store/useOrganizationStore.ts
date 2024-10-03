@@ -38,6 +38,9 @@ interface OrganizationStore {
     addOrganization: (org: Organization) => void;
     updateOrganization: (org: Organization) => void;
     deleteOrganization: (orgId: string) => void;
+    addDocument: (orgId: string, document: Document) => void;
+    editDocument: (orgId: string, documentId: string, updatedDocument: Partial<Document>) => void;
+    deleteDocument: (orgId: string, documentId: string) => void;
 }
 
 
@@ -56,19 +59,66 @@ const localStorageWrapper = {
 
 export const useOrganizationStore = create<OrganizationStore>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             organizations: [],
             selectedOrganization: null,
+
+            // Set organizations
             setOrganizations: (orgs: Organization[]) => set({ organizations: orgs }),
+
+            // Select an organization
             selectOrganization: (org: Organization) => set({ selectedOrganization: org }),
-            addOrganization: (org: any) => set((state) => ({ organizations: [...state.organizations, org] })),
+
+            // Add a new organization
+            addOrganization: (org: Organization) => set((state) => ({
+                organizations: [...state.organizations, org],
+            })),
+
+            // Update an organization
             updateOrganization: (updatedOrg: Organization) => set((state) => ({
                 organizations: state.organizations.map((org) =>
                     org.organizationId === updatedOrg.organizationId ? updatedOrg : org
                 ),
             })),
+
+            // Delete an organization
             deleteOrganization: (orgId: string) => set((state) => ({
                 organizations: state.organizations.filter((org) => org.organizationId !== orgId),
+            })),
+
+            // Add a document to an organization
+            addDocument: (orgId: string, document: Document) => set((state) => ({
+                organizations: state.organizations.map((org) =>
+                    org.organizationId === orgId
+                        ? { ...org, documents: [...org.documents, document] }
+                        : org
+                ),
+            })),
+
+            // Edit a document in an organization
+            editDocument: (orgId: string, documentId: string, updatedDocument: Partial<Document>) => set((state) => ({
+                organizations: state.organizations.map((org) =>
+                    org.organizationId === orgId
+                        ? {
+                            ...org,
+                            documents: org.documents.map((doc) =>
+                                doc.documentId === documentId ? { ...doc, ...updatedDocument } : doc
+                            ),
+                        }
+                        : org
+                ),
+            })),
+
+            // Delete a document from an organization
+            deleteDocument: (orgId: string, documentId: string) => set((state) => ({
+                organizations: state.organizations.map((org) =>
+                    org.organizationId === orgId
+                        ? {
+                            ...org,
+                            documents: org.documents.filter((doc) => doc.documentId !== documentId),
+                        }
+                        : org
+                ),
             })),
         }),
         {
