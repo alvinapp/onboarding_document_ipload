@@ -1,127 +1,115 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../common/Button';
 import { Progress } from '../common/Progress';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../common/Table';
-import { ChevronLeft, Loader2, RefreshCwIcon, Pencil, LucideTrash2 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../common/Table';
+import { ChevronLeft, Loader2, RefreshCwIcon, Search } from 'lucide-react';
 import { useQuery, useMutation } from 'react-query';
 import axios from 'axios';
 import CustomLoader from '../common/CustomLoader';
 import CreateOrganizationDialog from './CreateOrganizationDialog';
 import { useOrganizationStore } from '../../store/useOrganizationStore';
 import EditOrganizationDialog from './EditOrganizationDialog';
-import AlertDialogWrapper from '../common/AlertDialogWrapper';
 import { useToast } from '../common/ToastProvider';
+import { Input } from '../common/Input';
+import { debounce } from 'lodash';
 
 export default function CustomTable() {
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [previousData, setPreviousData] = useState(null);
   const perPage = 10;
   const navigate = useNavigate();
   const { showToast } = useToast();
-
-  // State to handle filters - explicitly typed as Date | null for startDate, endDate, and string for stage
-  const [filters, setFilters] = useState<{ startDate: Date | null; endDate: Date | null; stage: string }>({
-    startDate: null,
-    endDate: null,
-    stage: '',
-  });
-
+  const { organizations, setOrganizations, selectOrganization } = useOrganizationStore();
   const baseUrl = process.env.REACT_APP_BASE_URL;
 
-  const { organizations, setOrganizations, selectOrganization } = useOrganizationStore();
+  const fetchOrganizations = async () => {
+    const endpoint = debouncedSearchTerm
+      ? `${baseUrl}/onboarding_steps/search`
+      : `${baseUrl}/onboarding_steps/all`;
+
+    const response = await axios({
+      method: debouncedSearchTerm ? 'post' : 'get',
+      url: endpoint,
+      data: debouncedSearchTerm ? { search_term: debouncedSearchTerm } : undefined,
+      params: debouncedSearchTerm ? {} : { page, per_page: perPage },
+    });
+
+    if (debouncedSearchTerm && response.data.steps.length === 0) {
+      showToast({
+        title: 'No Results',
+        description: `No organization found for search term '${debouncedSearchTerm}'`,
+        type: 'warning',
+      });
+      return previousData; // Return previous data to maintain current view
+    }
+
+    setPreviousData(response.data); // Update previous data only if valid results are returned
+    return response.data;
+  };
 
   const { data, isLoading, isError, isFetching, refetch } = useQuery(
-    ['onboardingSteps', page, filters],
-    () =>
-      axios
-        .get(
-          `${baseUrl}/onboarding_steps/all?page=${page}&per_page=${perPage}&start_date=${filters.startDate ? filters.startDate.toISOString() : ''
-          }&end_date=${filters.endDate ? filters.endDate.toISOString() : ''}&stage=${filters.stage}`
-        )
-        .then((res) => res.data),
+    ['onboardingSteps', page, debouncedSearchTerm],
+    fetchOrganizations,
     {
       keepPreviousData: true,
       staleTime: 60 * 1000 * 5,
     }
   );
 
-
-  const deleteOrg = useMutation((organizationId: string) => axios.post(`${baseUrl}/organizations/${organizationId}/delete`), {
-    onSuccess: () => {
-      showToast({
-        title: 'Success',
-        description: 'Organization deleted successfully.',
-        type: 'success',
-      });
-      refetch();
-    },
-    onError: () => {
-      showToast({
-        title: 'Error',
-        description: 'Failed to delete organization.',
-        type: 'error',
-      });
-    },
-  });
+  const deleteOrg = useMutation(
+    (organizationId) => axios.post(`${baseUrl}/organizations/${organizationId}/delete`),
+    {
+      onSuccess: () => {
+        showToast({
+          title: 'Success',
+          description: 'Organization deleted successfully.',
+          type: 'success',
+        });
+        refetch();
+      },
+      onError: () => {
+        showToast({
+          title: 'Error',
+          description: 'Failed to delete organization.',
+          type: 'error',
+        });
+      },
+    }
+  );
 
   useEffect(() => {
-    if (data) {
-      const orgData = data.steps.map((step: any) => {
-        const documents = step.steps.flatMap((stepDetail: any) =>
-          stepDetail.document_links.map((doc: any) => ({
-            documentId: doc.id,
-            linkType: doc.link_type,
-            documentLink: doc.document_link,
-            documentType: doc.document_type,
-            documentName: doc.document_name,
-            createdAt: new Date(doc.created_at).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            }),
-          }))
-        );
-
-        return {
-          organizationId: step.organization_id,
-          organization: step.organization_name,
-          assignee: ['John Doe', 'Jane Smith'],
-          launchpadStage: step.latest_step_name,
-          launchpadStepNumber: step.latest_step_number,
-          progress: step.latest_step_progress,
-          dueDate: step.due_date
-            ? new Date(step.due_date).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            })
-            : 'N/A',
-          organizationCreatedOn: new Date(step.organization_created_on).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          }),
-          documents: documents,
-        };
-      });
-
+    if (data && data.steps) {
+      const orgData = data.steps.map((step: any) => ({
+        organizationId: step.organization_id,
+        organization: step.organization_name,
+        launchpadStage: step.latest_step_name,
+        launchpadStepNumber: step.latest_step_number,
+        progress: step.latest_step_progress,
+        dueDate: step.due_date ? new Date(step.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A',
+        organizationCreatedOn: new Date(step.organization_created_on).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      }));
       setOrganizations(orgData);
     }
   }, [data, setOrganizations]);
 
-  // Handle filter submission with proper typing
-  const handleFilter = ({ startDate, endDate, stage }: { startDate: Date | null; endDate: Date | null; stage: string | null }) => {
-    // Ensure stage is always a string (convert null to empty string)
-    setFilters({ startDate, endDate, stage: stage || '' });
-    setPage(1); // Reset to first page when applying new filters
+  const handleSearchChange = (e: any) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedSearch(value);
+
+    if (value === '') {
+      setPage(1);
+      refetch(); // Refetch all data if search is cleared
+    }
   };
+
+  const debouncedSearch = useCallback(debounce((term) => {
+    setDebouncedSearchTerm(term);
+    setPage(1);
+  }, 1300), []);
 
   if (isLoading)
     return (
@@ -149,6 +137,16 @@ export default function CustomTable() {
           <Button variant="outline" onClick={() => refetch()} disabled={isLoading || isFetching}>
             {isLoading || isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCwIcon className='h-4 w-4' />}
           </Button>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="pl-10 pr-4 py-2 w-64"
+            />
+          </div>
           <CreateOrganizationDialog />
         </div>
       </div>

@@ -20,7 +20,6 @@ interface EditOrganizationFormProps {
 }
 
 const EditOrganizationForm: React.FC<EditOrganizationFormProps> = ({ organization, onClose }) => {
-    console.log("organization", organization);
     const { updateOrganization } = useOrganizationStore();
     const baseurl = process.env.REACT_APP_BASE_URL;
     const updateOrganizationUrl = `${baseurl}/organizations/${organization.organizationId}/update`;

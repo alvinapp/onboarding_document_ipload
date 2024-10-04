@@ -8,7 +8,6 @@ interface EditOrganizationDialogProps {
 }
 
 const EditOrganizationDialog: React.FC<EditOrganizationDialogProps> = ({organization}) => {
-    console.log(organization);
     return (
         <DialogWrapper
             triggerButton={
