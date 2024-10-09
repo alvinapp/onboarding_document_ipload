@@ -95,7 +95,7 @@ const CreateOrganizationForm: React.FC<CreateOrganizationFormProps> = ({ onClose
     const organizationTypeOptions = [
         { value: 'fintech', label: 'Fintech' },
         { value: 'bank', label: 'Bank' },
-        { value: 'distribution channel partners', label: 'Distribution Channel Partners' },
+        { value: 'distribution channel partners', label: 'Asset Managers' },
     ];
 
     return (

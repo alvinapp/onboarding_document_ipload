@@ -51,8 +51,15 @@ const fetchOrganizationUsers = async (selectedOrg: string): Promise<RawOrganizat
   return response.data?.users || [];
 };
 
+// add user to workspace /add_user_to_organization/<organization_id> POST takes email and organization_id
+const addUserToWorkspace = async (email: string, organization_id: string) => {
+  const response = await axios.post(`${baseUrl}/users/add_user_to_organization/${organization_id}`, { "email": email });
+  return response.data;
+};
+
 const ResetPassword: React.FC = () => {
   const [selectedOrg, setSelectedOrg] = useState<string>('');
+  const [selectedWorkSpace, setSelectedWorkSpace] = useState<string>('');
   const [selectedOrgUser, setSelectedOrgUser] = useState<string>('');
   const [originalUserDetails, setOriginalUserDetails] = useState<RawOrganizationUser | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails>({ email: '', first_name: '', last_name: '' });
@@ -61,6 +68,34 @@ const ResetPassword: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false); // New state for password visibility
   const navigate = useNavigate();
   const { showToast } = useToast();
+
+  // Update user to workspace
+  const { mutate: updateUserToWorkspace, isLoading: updateUserToWorkspaceLoading } = useMutation(
+    (email: string) => addUserToWorkspace(email, selectedWorkSpace),
+    {
+      onError: () => {
+        showToast({
+          title: "Error",
+          description: "Failed to add user to workspace. Please try again.",
+          type: "error",
+          duration: 5000,
+        });
+      },
+      onSuccess: () => {
+        setSelectedWorkSpace('');
+        showToast({
+          title: "Success",
+          description: "User added to workspace successfully.",
+          type: "success",
+          duration: 5000,
+        });
+      },
+    }
+  );
+
+  const onUpdateWorkSpace = () => {
+    updateUserToWorkspace(userDetails.email);
+  }
 
   // Fetch organizations using react-query
   const { data: organizations = [], isLoading: orgsLoading, isError: orgsError } = useQuery(
@@ -222,12 +257,12 @@ const ResetPassword: React.FC = () => {
             {key === 'length'
               ? 'Minimum 8 characters'
               : key === 'lowercase'
-              ? 'At least one lowercase letter'
-              : key === 'uppercase'
-              ? 'At least one uppercase letter'
-              : key === 'number'
-              ? 'At least one number'
-              : 'At least one special character ($@$!%*?&)'}
+                ? 'At least one lowercase letter'
+                : key === 'uppercase'
+                  ? 'At least one uppercase letter'
+                  : key === 'number'
+                    ? 'At least one number'
+                    : 'At least one special character ($@$!%*?&)'}
           </li>
         ))}
       </ul>
@@ -239,7 +274,7 @@ const ResetPassword: React.FC = () => {
       <div className="flex justify-center mb-8">
         <img src={logoSvg} alt="Alvin Logo" className="h-12" />
       </div>
-      <div className="flex flex-col md:flex-row gap-8 justify-center">
+      <div className="flex flex-col flex-wrap md:flex-row gap-8 justify-center">
         <AnimatePresence>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -397,6 +432,47 @@ const ResetPassword: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        {originalUserDetails && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card className="w-full md:w-96">
+              <CardHeader>
+                <CardTitle>Add {userDetails.first_name} to a Workspace</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Select value={selectedWorkSpace} onValueChange={setSelectedWorkSpace}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an organization" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {orgsLoading ? (
+                      <SelectItem value="loading" disabled>
+                        Loading organizations...
+                      </SelectItem>
+                    ) : (
+                      organizations.map((org) => (
+                        <SelectItem key={org.value} value={org.value}>
+                          {org.label}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={onUpdateWorkSpace}
+                  disabled={!selectedWorkSpace}
+                  className="w-full"
+                >
+                  Add to Workspace
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
       </div>
     </div>
   );

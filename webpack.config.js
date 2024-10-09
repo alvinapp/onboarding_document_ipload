@@ -3,8 +3,18 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const dotenv = require('dotenv');
 
-module.exports = (env) => {
-  // Load environment variables based on the mode (development, production, etc.)
+module.exports = (env = {}) => {
+  // Map custom NODE_ENV values to Webpack's valid modes
+  const modeMap = {
+    development: 'development',
+    production: 'production',
+    staging: 'production', // Staging can map to production mode for optimizations
+  };
+
+  // Determine mode based on env.NODE_ENV or default to 'development'
+  const mode = modeMap[env.NODE_ENV] || 'development';
+
+  // Load environment variables based on the mode
   const envFile = `.env.${env.NODE_ENV || 'development'}`;
   const fileEnv = dotenv.config({ path: envFile }).parsed || {};
 
@@ -58,6 +68,7 @@ module.exports = (env) => {
       port: 3000,
       open: true, // Automatically open the browser
     },
-    mode: env.NODE_ENV || 'development',
+    // Use the mapped mode ('production' for staging, etc.)
+    mode: mode,
   };
 };
