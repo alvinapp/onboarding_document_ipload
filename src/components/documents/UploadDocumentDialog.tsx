@@ -1,4 +1,5 @@
 import React from 'react';
+import { useQueryClient } from 'react-query';
 import DialogWrapper from '../common/DialogWrapper';
 import UploadDocumentsForm from './UploadDocumentsForm';
 import { Button } from "../common/Button";
@@ -9,6 +10,10 @@ interface UploadDocumentDialogProps {
 }
 
 const UploadDocumentDialog: React.FC<UploadDocumentDialogProps> = ({ organizationId }) => {
+  const queryClient = useQueryClient();
+  const handleUpdate = () => {
+    queryClient.invalidateQueries(['organizationData', organizationId]);
+  };
   return (
     <DialogWrapper
       triggerButton={
@@ -24,6 +29,7 @@ const UploadDocumentDialog: React.FC<UploadDocumentDialogProps> = ({ organizatio
         <UploadDocumentsForm
           organizationId={organizationId}
           onClose={onClose}
+          onUpload={handleUpdate}
         />
       )}
     </DialogWrapper>

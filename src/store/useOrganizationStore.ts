@@ -22,6 +22,7 @@ interface Organization {
     organizationId: string;
     organization: string;
     launchpadStage: string;
+    launchpadStepId?: string;
     launchpadStepNumber: number;
     documents: Document[];
     steps?: Steps[];

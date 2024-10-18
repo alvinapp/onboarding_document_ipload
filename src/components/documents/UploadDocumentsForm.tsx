@@ -43,9 +43,10 @@ const fetchOnboardingSteps = async (organizationId: string): Promise<OnboardingS
 interface UploadDocumentsFormProps {
     organizationId: string;
     onClose: () => void;
+    onUpload: () => void;
 }
 
-const UploadDocumentsForm: React.FC<UploadDocumentsFormProps> = ({ organizationId, onClose }) => {
+const UploadDocumentsForm: React.FC<UploadDocumentsFormProps> = ({ organizationId, onClose, onUpload }) => {
     const [selectedOnboardingState, setSelectedOnboardingState] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const [file, setFile] = useState<File | null>(null);
@@ -129,6 +130,7 @@ const UploadDocumentsForm: React.FC<UploadDocumentsFormProps> = ({ organizationI
             });
             onClose();
             resetForm();
+            onUpload();
         } catch (error) {
             showToast({
                 type: 'error',

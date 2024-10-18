@@ -48,7 +48,7 @@ export default function ChangeOrganizationStageForm({
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ "step_number": selectedOrganization ?selectedOrganization?.launchpadStepNumber + 1 : 1, "next_step": newStepNumber + 1 }),
+                body: JSON.stringify({ "step_number": selectedOrganization ? selectedOrganization?.launchpadStepNumber + 1 : 1, "next_step": newStepNumber + 1 }),
             });
 
             if (!response.ok) {
@@ -118,7 +118,7 @@ export default function ChangeOrganizationStageForm({
                             className="bg-gray-100"
                         />
 
-                        <div className="flex items-center justify-between">
+                        {users.length > 0 && <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-500">The email will be sent to the following users: </span>
                             <Button
                                 variant="ghost"
@@ -127,7 +127,7 @@ export default function ChangeOrganizationStageForm({
                             >
                                 Select all
                             </Button>
-                        </div>
+                        </div>}
 
                         <div className="flex flex-wrap gap-2">
                             <AnimatePresence>
