@@ -10,6 +10,7 @@ import OrganizationUsersTable from "./components/organization-users/Organization
 import { ToastProvider } from './components/common/ToastProvider';
 import { QueryClient, QueryClientProvider } from "react-query";
 import ErrorBoundary from './components/common/ErrorBoundary';
+import Microapplications from './pages/Microapplications';
 
 const App: React.FC = () => {
   const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App: React.FC = () => {
             <Route path="/organizations" element={<OrganizationTable />} />
             <Route path="/organization-dashboard" element={<OrganizationDashboard />} />
             <Route path="/organization-users" element={<OrganizationUsersTable />} />
+            <Route path="/microapplications" element={<Microapplications />} />
           </Routes>
         </Router>
       </ToastProvider>

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/common/Card"
 import { Button } from "../components/common/Button"
-import { LogIn, FileUp, UserCog, Building2 } from "lucide-react"
+import { LogIn, FileUp, UserCog, Building2, ChartSpline } from "lucide-react"
 
 import logoSvg from '../assets/alvinlogo1.svg';
 
@@ -14,6 +14,7 @@ const HomePage: React.FC = () => {
     { title: 'Doc Upload', path: '/doc-upload', icon: <FileUp className="mr-2 h-4 w-4" /> },
     { title: 'Edit User', path: '/reset-password', icon: <UserCog className="mr-2 h-4 w-4" /> },
     { title: 'Organizations', path: '/organizations', icon: <Building2 className="mr-2 h-4 w-4" /> },
+    { title: 'Microapplications(P)', path: '/microapplications', icon: <ChartSpline className="mr-2 h-4 w-4" /> },
   ]
 
   return (
